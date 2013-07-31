@@ -6,6 +6,12 @@ package com.idyria.osi.tea.listeners
 
     Trait to be implemented by classes whishing to offer support for listening points
 
+    FIXME: Documentation here:
+
+    @odfi-doc
+
+
+
 */
 trait ListeningSupport {
 

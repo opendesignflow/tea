@@ -1,104 +1,160 @@
 package com.idyria.osi.tea.listeners
 
-
-
 /**
-
-    Trait to be implemented by classes whishing to offer support for listening points
-
-    FIXME: Documentation here:
-
-    @odfi-doc
-
-
-
-*/
+ *
+ * Trait to be implemented by classes whishing to offer support for listening points
+ *
+ * FIXME: Documentation here:
+ *
+ * @odfi-doc
+ *
+ *
+ *
+ */
 trait ListeningSupport {
 
-    // Register Closures
+  // Register Closures
+  //-------------------
+
+  // All the registered closures
+  var listeningPoints = Map[String, scala.collection.mutable.Set[(() => Unit)]]()
+
+  var listeningPointsWith = Map[String, scala.collection.mutable.Set[(Any => Unit)]]()
+
+  // Deregister
+  //---------------
+  
+  /**
+   * Deregister a closure from where it could be
+   */
+  def deregister(listener: AnyRef) = {
+
+    listeningPoints.foreach {
+      case (id, closures) =>
+        
+        closures.find( c => c==listener) match {
+          case Some(toRemove) => closures.remove(toRemove)
+          case None => 
+        }
+       
+    }
+    
+    listeningPointsWith.foreach {
+      case (id, closures) =>
+        
+        closures.find( c => c==listener) match {
+          case Some(toRemove) => closures.remove(toRemove)
+          case None => 
+        }
+       
+    }
+
+  }
+
+  /**
+   * Used to provide a closure to be run on a specific listening point
+   *
+   * Example:
+   *
+   * instance.on "listening.point.name" {
+   * println("Hello World from closure")
+   * }
+   *
+   */
+  def on(point: String)(closure: => Unit) : (() => Unit) = {
+
+    // println("Registering Closure for point "+point)
+
+    // Prepare Final closure
+    var wrappedClosure = { () => closure }
+
+    // - Create Set if non existend
+    // - Update otherwise
     //-------------------
+    this.listeningPoints.get(point) match {
+      case Some(set) => set += wrappedClosure
+      case None => {
 
-    // All the registered closures
-    var listeningPoints = Map[String,scala.collection.mutable.Set[( () => Unit )]]()
+        this.listeningPoints += (point -> scala.collection.mutable.Set[(() => Unit)](wrappedClosure))
 
-    var listeningPointsWith = Map[String,scala.collection.mutable.Set[( Any => Unit )]]()
-
-    /**
-        Used to provide a closure to be run on a specific listening point
-
-        Example:
-
-            instance.on "listening.point.name" {
-                println("Hello World from closure")
-            }
-
-    */
-    def on(point:String)(closure: => Unit ) = {
-
-       // println("Registering Closure for point "+point)
-
-        // - Create Set if non existend
-        // - Update otherwise
-        //-------------------
-        this.listeningPoints.get(point) match {
-            case Some(set) => set += { () => closure }
-            case None => {
-
-                this.listeningPoints += (point -> scala.collection.mutable.Set[( () => Unit )]({ () => closure }) )
-
-                //println("Setting up set, size is now: "+this.listeningPoints.size)
-            }
-        }
+        //println("Setting up set, size is now: "+this.listeningPoints.size)
+      }
     }
 
+    // Return reference to closure
+    return wrappedClosure
+  }
 
-    def onWith[T <: Any](point:String)(closure: T => Unit ) = {
+  def onWith[T <: Any](point: String)(closure: T => Unit): T => Unit = {
 
-       // println("Registering Closure for point "+point)
+    // println("Registering Closure for point "+point)
 
-        // - Create Set if non existend
-        // - Update otherwise
-        //-------------------
-        this.listeningPointsWith.get(point) match {
-            case Some(set) => set += { (in : Any) => closure(in.asInstanceOf[T]) }
-            case None => {
+    // Prepare closure
+    var cl = { (in: Any) => closure(in.asInstanceOf[T]) }
+    
+    // - Create Set if non existend
+    // - Update otherwise
+    //-------------------
+    this.listeningPointsWith.get(point) match {
+      case Some(set) => set += cl
+      case None => {
 
-                this.listeningPointsWith += (point -> scala.collection.mutable.Set[( Any => Unit )]({ (in : Any) => closure(in.asInstanceOf[T]) }) )
+        this.listeningPointsWith += (point -> scala.collection.mutable.Set[(Any => Unit)](cl))
 
-                //println("Setting up set, size is now: "+this.listeningPoints.size)
-            }
-        }
+        //println("Setting up set, size is now: "+this.listeningPoints.size)
+      }
     }
+    return cl
+  }
 
+  def onMatch(point: String)(closure: PartialFunction[Any, Unit]) : Any => Unit = {
 
-    // Call Listenening point
-    //-----------------
+    // println("Registering Closure for point "+point)
 
-    /**
-        This method is used to call the closures registered for the listenerning point
+    var cl = { (in: Any) => closure(in) }
+    
+    // - Create Set if non existend
+    // - Update otherwise
+    //-------------------
+    this.listeningPointsWith.get(point) match {
+      case Some(set) => set += cl
+      case None => {
 
-        @param point The Listenening point name to be called
-    */
-    def @->[T <: Any] (point: String) = {
+        this.listeningPointsWith += (point -> scala.collection.mutable.Set[(Any => Unit)](cl))
 
-        //println("Running point "+point+", size: "+this.listeningPoints.size)
-
-        this.listeningPoints.get(point) match {
-            case Some(set) => set.foreach( cl => cl() )
-            case None =>
-        }
+        //println("Setting up set, size is now: "+this.listeningPoints.size)
+      }
     }
+    
+    return cl
+  }
 
-    def @->[T <: Any](point: String,input:T) = {
+  // Call Listenening point
+  //-----------------
 
-        //println("Running point "+point+", size: "+this.listeningPoints.size)
+  /**
+   * This method is used to call the closures registered for the listenerning point
+   *
+   * @param point The Listenening point name to be called
+   */
+  def @->[T <: Any](point: String) = {
 
-        this.listeningPointsWith.get(point) match {
-            case Some(set) => set.foreach( cl => cl(input) )
-            case None =>
-        }
+    //println("Running point "+point+", size: "+this.listeningPoints.size)
+
+    this.listeningPoints.get(point) match {
+      case Some(set) => set.foreach(cl => cl())
+      case None      =>
     }
+  }
 
+  def @->[T <: Any](point: String, input: T) = {
 
+    //println("Running point "+point+", size: "+this.listeningPoints.size)
+
+    this.listeningPointsWith.get(point) match {
+      case Some(set) => set.foreach(cl => cl(input))
+      case None      =>
+    }
+  }
 
 }

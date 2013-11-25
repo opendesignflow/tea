@@ -103,6 +103,10 @@ object TLog {
   //------------------------
   var levels = SortedMap[String, TLog.Level.Level]()
 
+  def resetLevels = {
+    levels =  SortedMap[String, TLog.Level.Level]()
+  }
+  
   def setLevel(cl: Class[_], level: TLog.Level.Level) = {
     levels = levels + (cl.getCanonicalName() -> level)
   }

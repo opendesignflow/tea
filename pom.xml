@@ -12,6 +12,15 @@
     </parent>
 
 
+    <!-- SCM -->
+    <!-- ### -->
+     <scm>
+        <connection>scm:git:git://bitbucket.org/osi/${project.artifactId}.git</connection>
+        <developerConnection>scm:git:git@bitbucket.org:osi/${project.artifactId}.git</developerConnection>
+        <url>http://bitbucket.org/osi/${project.artifactId}.git</url>
+    </scm>
+
+
     <build>
         <plugins>
           <plugin>

@@ -84,7 +84,7 @@ trait TLogSource {
 
     TLog.levels.get(resolvedRealm) match {
       case Some(rl) if (rl >= level)           ⇒ println(s"""$resolvedRealm [$level] ${message()}""")
-      case None if (level <= TLog.Level.FATAL) ⇒ println(s"""$resolvedRealm [$level] ${message()}""")
+      case None if (level <= TLog.Level.ERROR) ⇒ println(s"""$resolvedRealm [$level] ${message()}""")
       case _                                   ⇒
     }
 
@@ -107,7 +107,7 @@ object TLog {
     levels =  SortedMap[String, TLog.Level.Level]()
   }
   
-  def setLevel(cl: Class[_], level: TLog.Level.Level) = {
+  def setLevel(cl: Class[_], level: Level.Level) = {
     levels = levels + (cl.getCanonicalName() -> level)
   }
 

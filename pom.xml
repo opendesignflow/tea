@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.idyria.osi</groupId>
 	<artifactId>tea</artifactId>
-	<version>3.1.1</version>
+	<version>3.1.2-SNAPSHOT</version>
 	<name>Tea Scala Utils Library</name>
 	<parent>
 		<groupId>com.idyria.osi</groupId>

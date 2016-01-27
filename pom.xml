@@ -15,19 +15,32 @@
 	<!-- SCM -->
 	<!-- ### -->
 	<scm>
-		<connection>scm:git:git://bitbucket.org/osi/${project.artifactId}.git</connection>
-		<developerConnection>scm:git:git@bitbucket.org:osi/${project.artifactId}.git</developerConnection>
-		<url>http://bitbucket.org/osi/${project.artifactId}.git</url>
+		<connection>scm:git:git@github.com:richnou/tea.git</connection>
+		<developerConnection>scm:git:git@github.com:richnou/tea.git</developerConnection>
+		<url>https://github.com/richnou/tea</url>
 		<tag>HEAD</tag>
 	</scm>
 
 
 	<build>
 		<plugins>
+			<!-- Licenses -->
 			<plugin>
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>scala-maven-plugin</artifactId>
-				<version>${scala.plugin.version}</version>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>1.6</version>
+				<configuration>
+					<licenseName>gpl_v3</licenseName>
+					<extraExtensions>
+						<scala>java</scala>
+					</extraExtensions>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
 				<executions>
 					<execution>
 						<id>add-source</id>
@@ -36,7 +49,20 @@
 							<goal>add-source</goal>
 						</goals>
 						<configuration>
-							<sourceDir>${basedir}/src/main/java</sourceDir>
+							<sources>
+								<source>src/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<phase>pre-site</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/java</source>
+							</sources>
 						</configuration>
 					</execution>
 				</executions>

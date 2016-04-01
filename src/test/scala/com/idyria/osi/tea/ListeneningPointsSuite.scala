@@ -1,9 +1,9 @@
-package com.idyria.osi.tea.listeners
+package com.idyria.osi.tea
 
-import org.scalatest.BeforeAndAfterAll
 import org.scalatest.GivenWhenThen
 import org.scalatest.FunSuite
 import org.scalatest.GivenWhenThen
+import com.idyria.osi.tea.listeners.ListeningSupport
 
 class ListeningPointsSuite extends FunSuite with GivenWhenThen {
 

@@ -12,10 +12,12 @@ class CompileTest extends FunSuite with BeforeAndAfter with GivenWhenThen {
 
   val sourceFolder = new File("src/test/resources/compile")
   val outputFolder = new File("target/tco")
-
+  val startupCL = getClass.getClassLoader
+  
   before {
     outputFolder.mkdirs()
     DirectoryUtilities.deleteDirectoryContent(outputFolder)
+    Thread.currentThread().setContextClassLoader(startupCL)
   }
 
   test("Compilation Source and Output check") {
@@ -140,7 +142,7 @@ class CompileTest extends FunSuite with BeforeAndAfter with GivenWhenThen {
     }
 
     //-- Check
-    assertResult(Some, "Expected Compilation Errors")(res)
+    assertResult(true, "Expected Compilation Errors")(res.isDefined)
 
   }
 

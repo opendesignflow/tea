@@ -12,10 +12,13 @@ class CompileClassDomainTest  extends FunSuite with GivenWhenThen with BeforeAnd
   
   val sourceFolder = new File("src/test/resources/compile")
   val outputFolder = new File("target/tco")
-
+  val startupCL = getClass.getClassLoader
+  
   before {
+    println(s"Doing before")
     outputFolder.mkdirs()
     DirectoryUtilities.deleteDirectoryContent(outputFolder)
+    Thread.currentThread().setContextClassLoader(startupCL)
   }
   
   /**
@@ -35,7 +38,7 @@ class CompileClassDomainTest  extends FunSuite with GivenWhenThen with BeforeAnd
     var initClassLoader = Thread.currentThread().getContextClassLoader
     Given("A correct classloader, load the class")
     val className = "com.idyria.osi.tea.compile.TestCompile"
-    val loadClassDomain = new ClassDomain(Array(outputFolder.toURI().toURL()), Thread.currentThread().getContextClassLoader)
+    val loadClassDomain = new ClassDomain(Array(outputFolder.toURI().toURL()), startupCL)
     Thread.currentThread().setContextClassLoader(loadClassDomain)
     var cl = Thread.currentThread().getContextClassLoader.loadClass(className)
     println(s"${cl.getClassLoader.isInstanceOf[ClassDomain]}")
@@ -43,6 +46,7 @@ class CompileClassDomainTest  extends FunSuite with GivenWhenThen with BeforeAnd
     
     //-- Then Go Back 
     When("Reset Classloader to initial state")
+    Thread.currentThread().setContextClassLoader(startupCL)
     var classdomainSupport = new ClassDomainSupport {
       
     }
@@ -56,6 +60,15 @@ class CompileClassDomainTest  extends FunSuite with GivenWhenThen with BeforeAnd
     
     And("also with parent typing")
     var obj2 = classdomainSupport.instanceOfClass[TestCompileParent](cl)
+    /*classdomainSupport.withClassLoaderFor(cl) {
+      //var obj2 = classdomainSupport.instanceOfClass[TestCompileParent](cl)
+      var parentClass = classOf[TestCompileParent]
+      var objCl = classdomainSupport.getClassLoaderFor(cl)
+      
+      println(s"Child: "+classdomainSupport.isClassLoaderChildOf(loadClassDomain, startupCL))
+      var obj2 = obj.asInstanceOf[TestCompileParent]
+    }*/
+    
   }
   
   /**

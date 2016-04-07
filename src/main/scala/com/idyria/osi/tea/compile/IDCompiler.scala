@@ -13,6 +13,8 @@ import com.idyria.osi.tea.os.OSDetector
 import java.net.URLClassLoader
 import scala.tools.nsc.settings.MutableSettings
 import scala.tools.nsc.Settings
+import scala.tools.nsc.interpreter.Results.Result
+
 
 class IDCompiler extends ClassDomainSupport {
 
@@ -78,35 +80,6 @@ class IDCompiler extends ClassDomainSupport {
     case _ =>
   }
 
-  /*Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
-
-    override protected def parentClassLoader: ClassLoader = {
-
-      /*parentLoader match {
-        case null => super.parentClassLoader
-        case _ => parentLoader
-      }*/
-      println(s"Returning current thread CL as aprent CL")
-      Thread.currentThread().getContextClassLoader
-
-    }
-
-    def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
-      compileSourcesKeepingRun(sources: _*)._1
-
-    this.interpret("var init = true")
-    updateSettings
-
-  })*/
-
-  /*
-  println(s"Settings: "+settings2.outputDirs.getSingleOutput)
-settings2.outputDirs.add("/home/rleys/git/adl/indesign/indesign-core/src/test/resources/compile","/home/rleys/git/adl/indesign/indesign-core/target/tco")
-  println(s"Settings: "+settings2.outputDirs.getSingleOutput)
-  getIMain
-  println(s"Settings: "+settings2.outputDirs.getSingleOutput)
-  settings2.outputDirs.add("/home/rleys/git/adl/indesign/indesign-core/src/test/resources/compile","/home/rleys/git/adl/indesign/indesign-core/target/tco")
-  println(s"Settings: "+settings2.outputDirs.getSingleOutput)*/
 
   /**
    * Update Settings values
@@ -116,7 +89,7 @@ settings2.outputDirs.add("/home/rleys/git/adl/indesign/indesign-core/src/test/re
     //println(s"Updating Settings")
     // settings2.nc.value = true
     settings2.usejavacp.value = true
-
+ 
     if (OSDetector.getOS == OSDetector.OS.LINUX) {
 
       settings2.classpath.value = bootclasspath mkString java.io.File.pathSeparator
@@ -155,7 +128,10 @@ settings2.outputDirs.add("/home/rleys/git/adl/indesign/indesign-core/src/test/re
     //-- Do this here, otherwise Main creation overrides this setting
     this.sourceOutputPairs.foreach {
       case (source, output) =>
-        println(s"Setting Outputs: " + AbstractFile.getDirectory(source))
+        
+        source.mkdirs()
+        output.mkdirs()
+       // println(s"Setting Outputs: " + AbstractFile.getDirectory(source))
 
         //settings2.outputDirs.add(AbstractFile.getDirectory(source), AbstractFile.getDirectory(output))
         settings2.outputDirs.add(source.getAbsolutePath, output.getAbsolutePath)
@@ -234,9 +210,11 @@ settings2.outputDirs.add("/home/rleys/git/adl/indesign/indesign-core/src/test/re
 
     try {
 
+      
       getIMain.compileSources(new BatchSourceFile(AbstractFile.getFile(f.getAbsoluteFile))) match {
-        case false =>
+        case  false =>
 
+          
           // Prepare error
           Some(new FileCompileError(f, interpreterOutput.toString()))
 
@@ -251,6 +229,27 @@ settings2.outputDirs.add("/home/rleys/git/adl/indesign/indesign-core/src/test/re
 
     }
 
+  }
+  
+  def interpret(l:String) : Option[FileCompileError] = {
+    try {
+
+      getIMain.interpret(l) match {
+        case r if(r== scala.tools.nsc.interpreter.Results.Incomplete) =>
+
+          // Prepare error
+          //Some(new FileCompileError(f, interpreterOutput.toString()))
+
+        throw new RuntimeException(s"Could not Interpreset content: ${interpreterOutput.toString()}")
+        case _ => None
+      }
+
+    } finally {
+
+      // Reset output
+      interpreterOutput.getBuffer().setLength(0)
+
+    }
   }
 
 }

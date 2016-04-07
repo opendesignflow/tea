@@ -5,7 +5,7 @@ import java.net.URLClassLoader
 
 trait ClassDomainSupport {
 
-  def name = "unamed"
+
 
   /**
    * Returns a list with 0 -> n, 0 beein the parent top most clasloader

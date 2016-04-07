@@ -8,7 +8,7 @@ package com.idyria.osi.tea.os;
  *
  */
 public class OSDetector {
-
+ 
 	/**
 	 * 
 	 */

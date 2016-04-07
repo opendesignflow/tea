@@ -2,11 +2,11 @@ package com.idyria.osi.tea.compile
 
 import java.io.File
 
-class CompileError {
+class CompileError(msg:String) extends RuntimeException(msg) {
 
 }
 
-class FileCompileError(var file: File, var message: String) extends CompileError {
+class FileCompileError(var file: File, var message: String) extends CompileError(message) {
 
 }
 

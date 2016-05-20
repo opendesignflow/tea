@@ -172,7 +172,7 @@ trait ClassDomainSupport {
 
     //-- Get CL
     var classLoader = this.getClassLoaderFor(cl)
-    println(s"Running withClassLoaderFor with cl: $classLoader")
+    //println(s"Running withClassLoaderFor with cl: $classLoader")
     withClassLoader(classLoader)(run)
 
   }

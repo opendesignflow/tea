@@ -4,6 +4,7 @@ import scala.collection.SortedMap
 import scala.util.matching.Regex
 import scala.reflect.ClassTag
 
+
 trait TLogSource {
 
   def logError[T : ClassTag](msg: ⇒ String): Unit = {
@@ -38,6 +39,12 @@ trait TLogSource {
     doLog[T](TLog.Level.FINE, { () ⇒ msg })
 
   }
+   def isLogFine[T: ClassTag]: Boolean = {
+     isLogLevel(TLog.Level.FINE,getRealm[T])
+   }
+   def onLogFine[T: ClassTag](cl: => Unit): Unit = {
+     onLogLevel[T](TLog.Level.FINE, {() => cl})
+   }
 
   def logFull[T : ClassTag](msg: ⇒ String): Unit = {
 
@@ -45,10 +52,9 @@ trait TLogSource {
 
   }
   
-  // Logger management
-  //-------------------------
-  def doLog[T](level: TLog.Level.Level, message: () ⇒ String)(implicit tag: ClassTag[T]): Unit = {
-
+  // Realm Resolution
+  //----------
+  def getRealm[T](implicit tag: ClassTag[T]) : String = {
     // Determine Realm using class
     //------------------
     
@@ -64,13 +70,37 @@ trait TLogSource {
     }
    
     
-    var realmName = targetClass.getCanonicalName() match {
+    targetClass.getCanonicalName() match {
       case null if (targetClass.getEnclosingClass() != null) => targetClass.getEnclosingClass().getCanonicalName()
       case null => ""
       case nm => nm
     }
+  }
+  
+  def isLogLevel(level: TLog.Level.Level,realm:String) = {
+    TLog.levels.get(realm) match {
+      case Some(rl) if (rl >= level)           ⇒ true
+      case None if (level <= TLog.Level.ERROR) ⇒true
+      case _                                   ⇒ false
+    }
+  }
+  
+  // Logger management
+  //-------------------------
+  
+  def onLogLevel[T:ClassTag](level: TLog.Level.Level,cl: ()  => Unit) = {
+    this.isLogLevel(level, getRealm[T]) match {
+      case true => cl()
+      case false => 
+    }
+  }
+ 
+  
+  def doLog[T](level: TLog.Level.Level, message: () ⇒ String)(implicit tag: ClassTag[T]): Unit = {
 
-    doLog(realmName, level, message)
+    
+
+    doLog(getRealm[T], level, message)
 
   }
   def doLog(realm: String, level: TLog.Level.Level, message: () ⇒ String): Unit = {
@@ -82,11 +112,15 @@ trait TLogSource {
 
     //println("Logging realm: " + realm)
 
-    TLog.levels.get(resolvedRealm) match {
+    isLogLevel(level,realm) match {
+      case true => println(s"""$resolvedRealm [$level] ${message()}""")
+      case false => 
+    }
+    /*TLog.levels.get(resolvedRealm) match {
       case Some(rl) if (rl >= level)           ⇒ println(s"""$resolvedRealm [$level] ${message()}""")
       case None if (level <= TLog.Level.ERROR) ⇒ println(s"""$resolvedRealm [$level] ${message()}""")
       case _                                   ⇒
-    }
+    }*/
 
   }
 

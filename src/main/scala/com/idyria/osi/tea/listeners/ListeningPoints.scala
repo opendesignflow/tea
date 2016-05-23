@@ -96,7 +96,9 @@ trait ListeningSupport {
     // - Update otherwise
     //-------------------
     this.listeningPointsWith.get(point) match {
-      case Some(set) => set += cl
+      case Some(set) => 
+        set += cl
+        //this.listeningPointsWith += (point -> scala.collection.mutable.Set[(Any => Unit)](cl))
       case None => {
 
         this.listeningPointsWith += (point -> scala.collection.mutable.Set[(Any => Unit)](cl))

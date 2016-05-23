@@ -41,11 +41,12 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         var directoryPath = FileSystems.getDefault().getPath(d.getAbsolutePath)
 
         // Register if necessary
-        this.baseDirectories.find { case (key, file) => file.getAbsolutePath == d.getAbsolutePath } match {
+        this.baseDirectories.find { case (key, file) => file.getCanonicalFile.getAbsolutePath == d.getCanonicalFile.getAbsolutePath } match {
           case Some(entry) =>
           case None =>
+            logFine(s"///////////// Registering Folder " + directoryPath)
             var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE)
-            this.baseDirectories = this.baseDirectories + (watchKey -> d.getAbsoluteFile)
+            this.baseDirectories = this.baseDirectories + (watchKey -> d.getCanonicalFile)
         }
 
         // Save listener
@@ -82,15 +83,16 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
       case f =>
 
         // to path
-        var sourcePath = FileSystems.getDefault().getPath(f.getAbsolutePath)
-        var directoryPath = FileSystems.getDefault().getPath(f.getParentFile.getAbsolutePath)
+        var sourcePath = FileSystems.getDefault().getPath(f.getCanonicalFile.getAbsolutePath)
+        var directoryPath = FileSystems.getDefault().getPath(f.getParentFile.getCanonicalFile.getAbsolutePath)
 
         // Register if necessary
-        this.baseDirectories.find { case (key, file) => file.getAbsolutePath == f.getParentFile.getAbsolutePath } match {
+        this.baseDirectories.find { case (key, file) => file.getAbsolutePath == f.getParentFile.getCanonicalFile.getAbsolutePath } match {
           case Some(entry) =>
           case None =>
+            logFine(s"///////////// Registering Folder " + directoryPath)
             var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY)
-            this.baseDirectories = this.baseDirectories + (watchKey -> f.getParentFile.getAbsoluteFile)
+            this.baseDirectories = this.baseDirectories + (watchKey -> f.getParentFile.getCanonicalFile.getAbsoluteFile)
         }
 
         // Save listener
@@ -141,6 +143,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
     while (!stop) {
 
       // Get Key
+  
       var key = watcher.take()
 
       try {
@@ -149,11 +152,14 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         }*/
 
         //println(s"///////////// Got Key ")
-        key.pollEvents().filter { ev => ev.kind() != StandardWatchEventKinds.OVERFLOW } foreach {
+        var events = key.pollEvents()
+        key.reset()
+        //println(s"Key got events: "+events.size)
+        events.filter { ev => ev.kind() != StandardWatchEventKinds.OVERFLOW } foreach {
 
           // Directory Add
           //----------------------
-          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_CREATE) =>
+          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_CREATE && be.count()<=1) =>
             var e = be.asInstanceOf[WatchEvent[Path]]
 
             // Get Path of directory
@@ -196,9 +202,10 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
           // File Modify
           //----------------
-          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_MODIFY) =>
+          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_MODIFY && be.count()<=1) =>
 
             var e = be.asInstanceOf[WatchEvent[Path]]
+          
 
             // Get Path of directory
             var directoryFile = this.baseDirectories.get(key).get
@@ -209,7 +216,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
             //var filePath = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile().getAbsolutePath
 
             //var filePath = 
-            logFine(s"///////////// Got Modify event for "+filePath+ "// "+e.context().toAbsolutePath().toFile().getAbsolutePath+"//"+directoryFile.toPath())
+            logFine(s"///////////// Got Modify event for "+filePath+ s" ${fileAbsoluteFile.lastModified()}// "+e.context().toAbsolutePath().toFile().getAbsolutePath+"//"+directoryFile.toPath())
 
             // Get and run listeners
             
@@ -237,11 +244,12 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
           case e =>
 
-            logWarn(s"///////////// Got Unsupported Event ")
+           // logWarn(s"///////////// Got Unsupported Event ")
         }
 
       } finally {
         //-- invalid key
+        //println(s"Reset Key -> "+key.isValid())
         key.reset()
       }
 

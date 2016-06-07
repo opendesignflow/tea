@@ -39,6 +39,7 @@ trait ErrorSupport {
   def catchErrorsOn[RT](target: ErrorSupport)(cl: => RT): RT = {
 
     try {
+      target.resetErrors
       cl
     } catch {
       case e: Throwable =>
@@ -53,6 +54,7 @@ trait ErrorSupport {
    */
   def keepErrorsOn[RT](target: ErrorSupport)(cl: => RT): Option[RT] = {
     try {
+      target.resetErrors
       Some(cl)
     } catch {
       case e: Throwable =>

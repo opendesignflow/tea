@@ -14,9 +14,9 @@ import java.net.URLClassLoader
 import scala.tools.nsc.settings.MutableSettings
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.Results.Result
+import com.idyria.osi.tea.thread.ThreadLanguage
 
-
-class IDCompiler extends ClassDomainSupport {
+class IDCompiler extends ClassDomainSupport with ThreadLanguage {
 
   // Compiler Base
   //---------------
@@ -25,6 +25,9 @@ class IDCompiler extends ClassDomainSupport {
     error => println("******* Error Happened ***********")
   })
   var imain: Option[IMain] = None
+
+  //-- Create Classdomain for Compiler
+  var compilerClassDomain = new ClassDomain(Thread.currentThread().getContextClassLoader)
 
   // Source/Output Pairs
   //---------------------------
@@ -80,7 +83,6 @@ class IDCompiler extends ClassDomainSupport {
     case _ =>
   }
 
-
   /**
    * Update Settings values
    */
@@ -89,7 +91,7 @@ class IDCompiler extends ClassDomainSupport {
     //println(s"Updating Settings")
     // settings2.nc.value = true
     settings2.usejavacp.value = true
- 
+    settings2.defines.value = List("-Xexperimental")
     if (OSDetector.getOS == OSDetector.OS.LINUX) {
 
       settings2.classpath.value = bootclasspath mkString java.io.File.pathSeparator
@@ -102,41 +104,14 @@ class IDCompiler extends ClassDomainSupport {
 
     }
 
-    this.imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
-
-      override protected def parentClassLoader: ClassLoader = {
-
-        /*parentLoader match {
-        case null => super.parentClassLoader
-        case _ => parentLoader
-      }*/
-        //println(s"Returning current thread CL as aprent CL")
-        Thread.currentThread().getContextClassLoader
-
-      }
-
-      def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
-        compileSourcesKeepingRun(sources: _*)._1
-
-      //-- Init Main here before output dirs may be overriden and it won't work
-      this.interpret("var init = true")
-      //updateSettings
-
-    })
-
-    //-- Update output dirs
-    //-- Do this here, otherwise Main creation overrides this setting
-    this.sourceOutputPairs.foreach {
-      case (source, output) =>
-        
-        source.mkdirs()
-        output.mkdirs()
-       // println(s"Setting Outputs: " + AbstractFile.getDirectory(source))
-
-        //settings2.outputDirs.add(AbstractFile.getDirectory(source), AbstractFile.getDirectory(output))
-        settings2.outputDirs.add(source.getAbsolutePath, output.getAbsolutePath)
-      //settings2.outputDirs.setSingleOutput(AbstractFile.getDirectory(output))
+    bootclasspath.foreach {
+      u =>
+        compilerClassDomain.addURL(u)
     }
+
+    
+
+    this.imain
 
   }
 
@@ -148,7 +123,52 @@ class IDCompiler extends ClassDomainSupport {
     case None =>
 
       updateSettings
-      imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
+
+      // Create
+    fork {
+
+      this.imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
+
+        override protected def parentClassLoader: ClassLoader = {
+
+          /*parentLoader match {
+        case null => super.parentClassLoader
+        case _ => parentLoader
+      }*/
+          //println(s"Returning current thread CL as aprent CL")
+          //Thread.currentThread().getContextClassLoader
+          compilerClassDomain
+        }
+
+        def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
+          compileSourcesKeepingRun(sources: _*)._1
+
+        //-- Init Main here before output dirs may be overriden and it won't work
+        //println("Recreating! Recreatin!")
+        this.interpret("var init = true")
+
+        //-- Update output dirs
+        //-- Do this here, otherwise Main creation overrides this setting
+        sourceOutputPairs.foreach {
+          case (source, output) =>
+
+            source.mkdirs()
+            output.mkdirs()
+            // println(s"Setting Outputs: " + AbstractFile.getDirectory(source))
+
+            //settings2.outputDirs.add(AbstractFile.getDirectory(source), AbstractFile.getDirectory(output))
+            settings2.outputDirs.add(source.getAbsolutePath, output.getAbsolutePath)
+          //settings2.outputDirs.setSingleOutput(AbstractFile.getDirectory(output))
+        }
+        //println(s"CL: "+Thread.currentThread().getContextClassLoader)
+        //
+        //updateSettings
+
+      })
+    }.join()
+      
+      
+      /*imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
 
         override protected def parentClassLoader: ClassLoader = {
 
@@ -163,7 +183,7 @@ class IDCompiler extends ClassDomainSupport {
 
         def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
           compileSourcesKeepingRun(sources: _*)._1
-      })
+      })*/
       imain.get
 
   }
@@ -210,11 +230,9 @@ class IDCompiler extends ClassDomainSupport {
 
     try {
 
-      
       getIMain.compileSources(new BatchSourceFile(AbstractFile.getFile(f.getAbsoluteFile))) match {
-        case  false =>
+        case false =>
 
-          
           // Prepare error
           Some(new FileCompileError(f, interpreterOutput.toString()))
 
@@ -230,17 +248,17 @@ class IDCompiler extends ClassDomainSupport {
     }
 
   }
-  
-  def interpret(l:String) : Option[FileCompileError] = {
+
+  def interpret(l: String): Option[FileCompileError] = {
     try {
 
       getIMain.interpret(l) match {
-        case r if(r== scala.tools.nsc.interpreter.Results.Incomplete) =>
+        case r if (r == scala.tools.nsc.interpreter.Results.Incomplete) =>
 
           // Prepare error
           //Some(new FileCompileError(f, interpreterOutput.toString()))
 
-        throw new RuntimeException(s"Could not Interpreset content: ${interpreterOutput.toString()}")
+          throw new RuntimeException(s"Could not Interpreset content: ${interpreterOutput.toString()}")
         case _ => None
       }
 

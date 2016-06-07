@@ -20,6 +20,19 @@ class CompileTest extends FunSuite with BeforeAndAfter with GivenWhenThen {
     Thread.currentThread().setContextClassLoader(startupCL)
   }
 
+  test("Startup and Classloader") {
+    
+    println("DefaultCL: "+Thread.currentThread().getContextClassLoader)
+    var idCompiler = new IDCompiler
+    //-- Set Source and Output
+    idCompiler.addSourceOutputFolders(sourceFolder -> outputFolder)
+    
+    idCompiler.updateSettings
+    Thread.sleep(2000)
+    
+    println("END CL: "+Thread.currentThread().getContextClassLoader)
+  }
+  
   test("Compilation Source and Output check") {
 
     //-- Create Compiler

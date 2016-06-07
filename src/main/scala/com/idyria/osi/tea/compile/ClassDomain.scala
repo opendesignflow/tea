@@ -14,6 +14,9 @@ import java.net.URLClassLoader
  */
 class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p) {
 
+  var tainted = false
+  def isTainted = tainted
+  
   def this(arr: Array[URL]) = this(arr, Thread.currentThread().getContextClassLoader)
   def this() = this(Array[URL](), Thread.currentThread().getContextClassLoader)
   def this(p: ClassLoader) = this(Array[URL](), p)

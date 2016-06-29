@@ -14,6 +14,7 @@ import java.net.URLClassLoader
  */
 class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p) {
 
+  var name = "ClassDomain"
   var tainted = false
   def isTainted = tainted
   
@@ -23,9 +24,10 @@ class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p
 
   override def addURL(u: URL) = super.addURL(u)
 
+
   
 
   override def toString = {
-    "ClassDomain :" + hashCode()
+    s"ClassDomain $name (tainted=$tainted) :" + hashCode()
   }
 }

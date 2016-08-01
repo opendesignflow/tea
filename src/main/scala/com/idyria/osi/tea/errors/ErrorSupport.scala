@@ -1,6 +1,7 @@
 package com.idyria.osi.tea.errors
 
 import scala.collection.mutable.Stack
+import scala.reflect.ClassTag
 
 trait ErrorSupport {
 
@@ -14,6 +15,10 @@ trait ErrorSupport {
   
   def resetErrors = this.errors.clear()
 
+  def resetErrorsOfType[TT <: Throwable](implicit tag : ClassTag[TT]) = {
+    this.errors = this.errors.filter { err => !tag.runtimeClass.isInstance(err) }
+  }
+  
   // Errors get
   //---------------
   def hasErrors = this.errors.size match {
@@ -22,6 +27,14 @@ trait ErrorSupport {
   }
 
   def getLastError = this.errors.headOption
+  
+  def getErrorsOfType[ET <: Throwable](implicit tag : ClassTag[ET]) = {
+    
+    this.errors.collect {
+      case err if (tag.runtimeClass.isInstance(err))=>err.asInstanceOf[ET]
+    }.toList
+    
+  }
 
   // Comsume etc..
   //------------------

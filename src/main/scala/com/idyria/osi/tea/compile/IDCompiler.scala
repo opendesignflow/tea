@@ -109,8 +109,6 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
         compilerClassDomain.addURL(u)
     }
 
-    
-
     this.imain
 
   }
@@ -125,49 +123,48 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
       updateSettings
 
       // Create
-    fork {
+      fork {
 
-      this.imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
+        this.imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
 
-        override protected def parentClassLoader: ClassLoader = {
+          override protected def parentClassLoader: ClassLoader = {
 
-          /*parentLoader match {
+            /*parentLoader match {
         case null => super.parentClassLoader
         case _ => parentLoader
       }*/
-          //println(s"Returning current thread CL as aprent CL")
-          //Thread.currentThread().getContextClassLoader
-          compilerClassDomain
-        }
+            //println(s"Returning current thread CL as aprent CL")
+            //Thread.currentThread().getContextClassLoader
+            compilerClassDomain
+          }
 
-        def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
-          compileSourcesKeepingRun(sources: _*)._1
+          def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
+            compileSourcesKeepingRun(sources: _*)._1
 
-        //-- Init Main here before output dirs may be overriden and it won't work
-        //println("Recreating! Recreatin!")
-        this.interpret("var init = true")
+          //-- Init Main here before output dirs may be overriden and it won't work
+          //println("Recreating! Recreatin!")
+          this.interpret("var init = true")
 
-        //-- Update output dirs
-        //-- Do this here, otherwise Main creation overrides this setting
-        sourceOutputPairs.foreach {
-          case (source, output) =>
+          //-- Update output dirs
+          //-- Do this here, otherwise Main creation overrides this setting
+          sourceOutputPairs.foreach {
+            case (source, output) =>
 
-            source.mkdirs()
-            output.mkdirs()
-            // println(s"Setting Outputs: " + AbstractFile.getDirectory(source))
+              source.mkdirs()
+              output.mkdirs()
+              // println(s"Setting Outputs: " + AbstractFile.getDirectory(source))
 
-            //settings2.outputDirs.add(AbstractFile.getDirectory(source), AbstractFile.getDirectory(output))
-            settings2.outputDirs.add(source.getAbsolutePath, output.getAbsolutePath)
-          //settings2.outputDirs.setSingleOutput(AbstractFile.getDirectory(output))
-        }
-        //println(s"CL: "+Thread.currentThread().getContextClassLoader)
-        //
-        //updateSettings
+              //settings2.outputDirs.add(AbstractFile.getDirectory(source), AbstractFile.getDirectory(output))
+              settings2.outputDirs.add(source.getAbsolutePath, output.getAbsolutePath)
+            //settings2.outputDirs.setSingleOutput(AbstractFile.getDirectory(output))
+          }
+          //println(s"CL: "+Thread.currentThread().getContextClassLoader)
+          //
+          //updateSettings
 
-      })
-    }.join()
-      
-      
+        })
+      }.join()
+
       /*imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
 
         override protected def parentClassLoader: ClassLoader = {
@@ -199,6 +196,9 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
    */
   def compileFiles(f: Seq[File]): Option[FileCompileError] = {
 
+    // Reset output
+    interpreterOutput.getBuffer().setLength(0)
+
     // Make sure Context Classloader URLS are all available to compiler
     this.addClasspathURL(this.getClassLoaderCrossHierarchyURLS(Thread.currentThread().getContextClassLoader).toArray)
 
@@ -208,7 +208,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
         case false =>
 
           // Prepare error
-          Some(new FileCompileError(null, interpreterOutput.toString().trim))
+          Some(new FileCompileError( interpreterOutput.toString().trim))
 
         //throw new RuntimeException(s"Could not compile content: ${interpreterOutput.toString()}")
         case _ => None
@@ -234,7 +234,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
         case false =>
 
           // Prepare error
-          Some(new FileCompileError(f, interpreterOutput.toString()))
+          Some(new FileCompileError( interpreterOutput.toString()))
 
         //throw new RuntimeException(s"Could not compile content: ${interpreterOutput.toString()}")
         case _ => None

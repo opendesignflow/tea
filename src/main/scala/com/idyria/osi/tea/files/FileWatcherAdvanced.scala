@@ -12,6 +12,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import scala.collection.JavaConversions._
 import java.lang.ref.WeakReference
+import com.idyria.osi.tea.os.OSDetector
 
 /**
  * @author zm4632
@@ -23,7 +24,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
   var directoryChangeListeners = Map[String, Map[WeakReference[Any], List[File => Any]]]()
 
   def start = {
-    logFine(s"////////////// Startin watcher")
+    logFine[FileWatcherAdvanced](s"////////////// Startin watcher")
     watcherThread.start()
   }
 
@@ -44,7 +45,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         this.baseDirectories.find { case (key, file) => file.getCanonicalFile.getAbsolutePath == d.getCanonicalFile.getAbsolutePath } match {
           case Some(entry) =>
           case None =>
-            logFine(s"///////////// Registering Folder " + directoryPath)
+            logFine[FileWatcherAdvanced](s"///////////// Registering Folder " + directoryPath)
             var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE)
             this.baseDirectories = this.baseDirectories + (watchKey -> d.getCanonicalFile)
         }
@@ -83,21 +84,26 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
       case f =>
 
         // to path
-        var sourcePath = FileSystems.getDefault().getPath(f.getCanonicalFile.getAbsolutePath)
-        var directoryPath = FileSystems.getDefault().getPath(f.getParentFile.getCanonicalFile.getAbsolutePath)
+        var sourcePath = FileSystems.getDefault().getPath(f.getCanonicalFile.getCanonicalPath)
+        var directoryPath = FileSystems.getDefault().getPath(f.getParentFile.getCanonicalFile.getCanonicalPath)
 
         // Register if necessary
-        this.baseDirectories.find { case (key, file) => file.getAbsolutePath == f.getParentFile.getCanonicalFile.getAbsolutePath } match {
+        this.baseDirectories.find { case (key, file) => file.getCanonicalPath == f.getParentFile.getCanonicalFile.getCanonicalPath } match {
           case Some(entry) =>
           case None =>
-            logFine(s"///////////// Registering Folder " + directoryPath)
+            logFine[FileWatcherAdvanced](s"///////////// Registering Folder " + directoryPath)
             var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY)
-            this.baseDirectories = this.baseDirectories + (watchKey -> f.getParentFile.getCanonicalFile.getAbsoluteFile)
+            this.baseDirectories = this.baseDirectories + (watchKey -> f.getParentFile.getCanonicalFile)
         }
 
         // Save listener
         //-----------------
-
+         //-- Make File path low case on windows
+        /*var fileAbsolutePath = OSDetector.isWindows match {
+          case true => f.getAbsolutePath.toLowerCase()
+          case false => f.getAbsolutePath
+        }*/
+        
         //-- Get Listerners map 
         var listenersMap = changeListeners.get(f.getAbsolutePath) match {
           case Some(listeners) => listeners
@@ -118,7 +124,8 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         listenersMap = listenersMap + sourceListenerPair
 
         //-- Update Map in main listeners
-        this.changeListeners = this.changeListeners.updated(f.getAbsolutePath, listenersMap)
+       
+        this.changeListeners = this.changeListeners.updated(sourcePath.toFile().getCanonicalPath, listenersMap)
 
         /* // Save listener
         var listeners = changeListeners.get(f.getAbsolutePath) match {
@@ -128,7 +135,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         listeners = listeners :+ { () => cl }
         this.changeListeners = this.changeListeners.updated(f.getAbsolutePath, listeners)*/
 
-        logFine(s"///////////// Recorded event for " + f.getAbsolutePath)
+        logFine[FileWatcherAdvanced](s"///////////// Recorded event for " +sourcePath.toFile().getCanonicalPath)
       // 
     }
 
@@ -216,18 +223,25 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
             //var filePath = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile().getAbsolutePath
 
             //var filePath = 
-            logFine(s"///////////// Got Modify event for "+filePath+ s" ${fileAbsoluteFile.lastModified()}// "+e.context().toAbsolutePath().toFile().getAbsolutePath+"//"+directoryFile.toPath())
+            logFine[FileWatcherAdvanced](s"///////////// Got Modify event for "+filePath+ s" ${fileAbsoluteFile.lastModified()}// "+e.context().toAbsolutePath().toFile().getAbsolutePath+"//"+directoryFile.toPath())
+            logFine[FileWatcherAdvanced](s"///////////// Count: "+be.count())
 
             // Get and run listeners
             
             changeListeners.get(fileAbsoluteFile.getAbsolutePath) match {
               case Some(listenersMap) =>
+                
+                logFine[FileWatcherAdvanced](s"///////////// Listeners Map Present")
                 listenersMap.foreach {
                   case (ref, listeners) if (ref.get == null) =>
+                    
+                    logFine[FileWatcherAdvanced](s"///////////// Reference for set of listeners is void")
                     var newListernersMap = listenersMap - ref
                    this.directoryChangeListeners = this.directoryChangeListeners.updated(directoryFile.getAbsolutePath, listenersMap)
                   
                   case (ref, listeners) =>
+                    
+                    logFine[FileWatcherAdvanced](s"///////////// Delivering for reference listener: "+ref.get)
                     listeners.foreach {
                       l =>
                         // println(s"Running event")

@@ -15,6 +15,7 @@ import com.sun.org.apache.bcel.internal.generic.LoadClass
  */
 class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p) {
 
+  var name = "ClassDomain"
   var tainted = false
   def isTainted = tainted
 
@@ -23,6 +24,7 @@ class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p
   def this(p: ClassLoader) = this(Array[URL](), p)
 
   override def addURL(u: URL) = super.addURL(u)
+
 
   override def loadClass(name: String) : Class[_] = {
     try {
@@ -52,8 +54,9 @@ class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p
     }
   }
 
+
   override def toString = {
-    "ClassDomain :" + hashCode()
+    s"ClassDomain $name (tainted=$tainted) :" + hashCode()
   }
 
   // Dep CD

@@ -65,13 +65,14 @@ trait ErrorSupport {
    * Catch errors but don't transmit them
    * Closure returns None in that case
    */
-  def keepErrorsOn[RT](target: ErrorSupport)(cl: => RT): Option[RT] = {
+  def keepErrorsOn[RT](target: ErrorSupport,verbose:Boolean=false)(cl: => RT): Option[RT] = {
     try {
       target.resetErrors
       Some(cl)
     } catch {
       case e: Throwable =>
-        e.printStackTrace()
+        if(verbose)
+          e.printStackTrace()
         target.addError(e)
         None
     }

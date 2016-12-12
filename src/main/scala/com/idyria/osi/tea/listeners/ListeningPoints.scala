@@ -1,5 +1,11 @@
 package com.idyria.osi.tea.listeners
 
+import scala.reflect.ClassTag
+
+trait ListenerTransient {
+  
+}
+
 /**
  *
  * Trait to be implemented by classes whishing to offer support for listening points
@@ -85,12 +91,18 @@ trait ListeningSupport {
     return wrappedClosure
   }
 
-  def onWith[T <: Any](point: String)(closure: T => Unit): T => Unit = {
+  def onWith[T <: Any](point: String)(closure: T => Unit)(implicit tag:ClassTag[T]): T => Unit = {
 
     // println("Registering Closure for point "+point)
 
     // Prepare closure
-    var cl = { (in: Any) => closure(in.asInstanceOf[T]) }
+    var cl = { 
+      (in: Any) => 
+        if (tag.runtimeClass.isAssignableFrom(in.getClass())) {
+          closure(in.asInstanceOf[T]) 
+        }
+        
+    }
     
     // - Create Set if non existend
     // - Update otherwise
@@ -107,6 +119,25 @@ trait ListeningSupport {
       }
     }
     return cl
+  }
+  
+  /**
+   * Listener removed after one hit
+   */
+  def onWithTransient[T <: Any](point: String)(closure: T => Unit)(implicit tag:ClassTag[T]): T => Unit = {
+
+    var realCl = new Function1[T,Unit] with ListenerTransient {
+      def apply(v:T) = {
+        closure(v)
+      }
+    }
+    
+    var id  = this.onWith[T](point) {
+      v=> 
+      realCl(v)
+    }
+    
+    id
   }
 
   def onMatch(point: String)(closure: PartialFunction[Any, Unit]) : Any => Unit = {
@@ -154,7 +185,16 @@ trait ListeningSupport {
     //println("Running point "+point+", size: "+this.listeningPoints.size)
 
     this.listeningPointsWith.get(point) match {
-      case Some(set) => set.foreach(cl => cl(input))
+      case Some(set) => set.foreach {
+       cl =>
+         try {
+         cl(input)
+         } finally {
+           if (cl.isInstanceOf[ListenerTransient]) {
+             deregister(cl)
+           }
+         }
+      }
       case None      =>
     }
   }

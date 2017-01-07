@@ -4,20 +4,21 @@ node {
   def mvnHome = tool 'maven3'
 
   stage('Clean') {
-    sh "${mvnHome}/bin/mvn clean"
+    sh "${mvnHome}/bin/mvn -B clean"
   }
 
   stage('Build') {
-    sh "${mvnHome}/bin/mvn compile test-compile"
+    sh "${mvnHome}/bin/mvn -B  compile test-compile"
   }
 
   stage('Test') {
-    sh "${mvnHome}/bin/mvn verify"
-    junit 'reports/**/*.xml'
+    sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore verify"
+    junit '**/target/surefire-reports/TEST-*.xml'
   }
 
   stage('Deploy') {
-  
+      sh "${mvnHome}/bin/mvn -B deploy"
+      step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
   }
 
   //step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])

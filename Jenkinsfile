@@ -17,7 +17,7 @@ node {
   }
 
   stage('Deploy') {
-      sh "${mvnHome}/bin/mvn -B deploy"
+      sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore deploy"
       step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
   }
 

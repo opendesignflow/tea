@@ -1,6 +1,6 @@
 
 node {
-  git url: 'https://github.com/jglick/simple-maven-project-with-tests.git'
+ 
   def mvnHome = tool 'maven3'
 
   stage('Clean') {

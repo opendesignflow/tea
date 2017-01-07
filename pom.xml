@@ -6,9 +6,9 @@
 	<version>3.2.0-SNAPSHOT</version>
 	<name>Tea Scala Utils Library</name>
 	<parent>
-		<groupId>com.idyria.osi</groupId>
-		<artifactId>superpom-scala</artifactId>
-		<version>2.11.8.r1</version>
+		<groupId>org.odfi</groupId>
+    	<artifactId>superpom-scala</artifactId>
+    	<version>2.12.1.r2</version>
 	</parent>
 
 

@@ -35,19 +35,19 @@ class ListeningPointsSuite extends FunSuite with GivenWhenThen {
     
     // Check
     //--------------
-    expectResult(1,"Closure must be in map")(supporter.listeningPoints("test").size)
-    expectResult(2,"Closure must be in map")(supporter.listeningPointsWith("test").size)
+    assertResult(1,"Closure must be in map")(supporter.listeningPoints("test").size)
+    assertResult(2,"Closure must be in map")(supporter.listeningPointsWith("test").size)
     
     // Deregister
     //------------------
     supporter.deregister(cl)
-    expectResult(0,"Closure must not be in map anymore")(supporter.listeningPoints("test").size)
+    assertResult(0,"Closure must not be in map anymore")(supporter.listeningPoints("test").size)
     
     supporter.deregister(cl2)
-    expectResult(1,"Closure must not be in map anymore")(supporter.listeningPointsWith("test").size)
+    assertResult(1,"Closure must not be in map anymore")(supporter.listeningPointsWith("test").size)
     
     supporter.deregister(cl3)
-    expectResult(0,"Closure must not be in map anymore")(supporter.listeningPointsWith("test").size)
+    assertResult(0,"Closure must not be in map anymore")(supporter.listeningPointsWith("test").size)
     
     
 
@@ -74,7 +74,7 @@ class ListeningPointsSuite extends FunSuite with GivenWhenThen {
 
     // Test
     //---------------
-    expect(true)(success)
+    assertResult(true)(success)
 
   }
 
@@ -109,16 +109,16 @@ class ListeningPointsSuite extends FunSuite with GivenWhenThen {
     // Test
     //---------------
     supporter.@->("test", new InputObject)
-    expect("Hello")(success)
+    assertResult("Hello")(success)
 
     supporter.@->("test2", 10)
-    expect("int")(success)
+    assertResult("int")(success)
 
     supporter.@->("test2", "test")
-    expect("string")(success)
+    assertResult("string")(success)
 
     supporter.@->("test2", new InputObject)
-    expect("unmatched")(success)
+    assertResult("unmatched")(success)
 
   }
 }

@@ -1,6 +1,7 @@
 
 node {
  
+  properties([pipelineTriggers([[$class: 'GitHubPushTrigger']])])
   def mvnHome = tool 'maven3'
 
   stage('Clean') {
@@ -22,15 +23,5 @@ node {
       step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
   }
 
-  //step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
-  //step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
-}
 
-/*node ('master'){
-    stage('Build and Test') {
-        properties([pipelineTriggers([[$class: 'GitHubPushTrigger']])])
-        checkout scm
-        env.PATH = "${tool 'maven3'}/bin:${env.PATH}"
-        sh 'mvn clean package'
-    }
-}*/
+}

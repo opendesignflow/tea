@@ -1,7 +1,7 @@
 
 node {
   git url: 'https://github.com/jglick/simple-maven-project-with-tests.git'
-  def mvnHome = tool 'M3'
+  def mvnHome = tool 'maven3'
 
   stage('Build') {
     sh "${mvnHome}/bin/mvn -B compile test-compile"

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.odfi</groupId>
 	<artifactId>tea</artifactId>
-	<version>3.2.2-SNAPSHOT</version>
+	<version>3.2.2</version>
 	<name>Tea Scala Utils Library</name>
 	<parent>
 		<groupId>org.odfi</groupId>

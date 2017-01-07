@@ -3,20 +3,25 @@ node {
   git url: 'https://github.com/jglick/simple-maven-project-with-tests.git'
   def mvnHome = tool 'maven3'
 
+  stage('Clean') {
+    sh "${mvnHome}/bin/mvn clean"
+  }
+
   stage('Build') {
-    sh "${mvnHome}/bin/mvn -B compile test-compile"
+    sh "${mvnHome}/bin/mvn compile test-compile"
   }
 
   stage('Test') {
-    sh "${mvnHome}/bin/mvn -B verify"
+    sh "${mvnHome}/bin/mvn verify"
+    junit 'reports/**/*.xml'
   }
 
   stage('Deploy') {
   
   }
 
-  step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
-  step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+  //step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+  //step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
 }
 
 /*node ('master'){

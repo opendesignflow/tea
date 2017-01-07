@@ -4,6 +4,7 @@ node {
   def mvnHome = tool 'maven3'
 
   stage('Clean') {
+    checkout scm
     sh "${mvnHome}/bin/mvn -B clean"
   }
 

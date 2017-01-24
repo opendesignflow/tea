@@ -6,34 +6,34 @@ import scala.reflect.ClassTag
 
 trait TLogSource {
 
-  def logError[T: ClassTag](msg: ⇒ String): Unit = {
+  def logError[T: ClassTag](msg: => String): Unit = {
 
-    doLog[T](TLog.Level.ERROR, { () ⇒ msg })
-
-  }
-
-  def logWarn[T: ClassTag](msg: ⇒ String): Unit = {
-
-    doLog[T](TLog.Level.WARNING, { () ⇒ msg })
+    doLog[T](TLog.Level.ERROR, { () => msg })
 
   }
 
-  /*def logInfo(msg: ⇒ String) : Unit = {
+  def logWarn[T: ClassTag](msg: => String): Unit = {
+
+    doLog[T](TLog.Level.WARNING, { () => msg })
+
+  }
+
+  /*def logInfo(msg: => String) : Unit = {
     logInfo[this.type]({msg})
   }*/
 
   /**
    * Log Infos based on a closure that will be executed only if the log Level is allowed
    */
-  def logInfo[T: ClassTag](msg: ⇒ String): Unit = {
-
-    doLog[T](TLog.Level.INFO, { () ⇒ msg })
+  def logInfo[T: ClassTag](msg: => String): Unit = {
+    
+    doLog[T](TLog.Level.INFO, { () => msg })
 
   }
 
-  def logFine[T: ClassTag](msg: ⇒ String): Unit = {
+  def logFine[T: ClassTag](msg: => String): Unit = {
 
-    doLog[T](TLog.Level.FINE, { () ⇒ msg })
+    doLog[T](TLog.Level.FINE, { () => msg })
 
   }
   def isLogFine[T: ClassTag]: Boolean = {
@@ -43,17 +43,17 @@ trait TLogSource {
     onLogLevel[T](TLog.Level.FINE, { () => cl })
   }
 
-  def logFull[T: ClassTag](msg: ⇒ String): Unit = {
+  def logFull[T: ClassTag](msg: => String): Unit = {
 
-    doLog(TLog.Level.FULL, { () ⇒ msg })
+    doLog(TLog.Level.FULL, { () => msg })
 
   }
 
   def isLogLevel(level: TLog.Level.Level, realm: String) = {
     TLog.levels.get(realm) match {
-      case Some(rl) if (rl >= level) ⇒ true
-      case None if (level <= TLog.Level.ERROR) ⇒ true
-      case _ ⇒ false
+      case Some(rl) if (rl >= level) => true
+      case None if (level <= TLog.Level.ERROR) => true
+      case _ => false
     }
   }
 
@@ -67,12 +67,11 @@ trait TLogSource {
     }
   }
 
-  def doLog[T](level: TLog.Level.Level, message: () ⇒ String)(implicit tag: ClassTag[T]): Unit = {
-
+  def doLog[T](level: TLog.Level.Level, message: () => String)(implicit tag: ClassTag[T]): Unit = {
     doLog(TLog.getRealm[T], level, message)
 
   }
-  def doLog(realm: String, level: TLog.Level.Level, message: () ⇒ String): Unit = {
+  def doLog(realm: String, level: TLog.Level.Level, message: () => String): Unit = {
 
     var resolvedRealm = realm match {
       case null => "undefined"
@@ -86,9 +85,9 @@ trait TLogSource {
       case false =>
     }
     /*TLog.levels.get(resolvedRealm) match {
-      case Some(rl) if (rl >= level)           ⇒ println(s"""$resolvedRealm [$level] ${message()}""")
-      case None if (level <= TLog.Level.ERROR) ⇒ println(s"""$resolvedRealm [$level] ${message()}""")
-      case _                                   ⇒
+      case Some(rl) if (rl >= level)           => println(s"""$resolvedRealm [$level] ${message()}""")
+      case None if (level <= TLog.Level.ERROR) => println(s"""$resolvedRealm [$level] ${message()}""")
+      case _                                   =>
     }*/
 
   }
@@ -136,7 +135,11 @@ object TLog {
     levels = SortedMap[String, TLog.Level.Level]()
   }
 
-  def setLevel(cl: Class[_], level: Level.Level) = {
+  def setLevel(obj: Any, level: Level.Level) : Unit  = {
+    levels = levels + (obj.getClass().getCanonicalName() -> level)
+  }
+  
+  def setLevel(cl: Class[_], level: Level.Level) : Unit  = {
     levels = levels + (cl.getCanonicalName() -> level)
   }
   

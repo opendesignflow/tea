@@ -1,18 +1,18 @@
 package com.idyria.osi.tea.files
 
-import com.idyria.osi.tea.thread.ThreadLanguage
-import com.idyria.osi.tea.logging.TLogSource
 import java.io.File
+import java.lang.ref.WeakReference
 import java.nio.file.FileSystems
-import java.nio.file.StandardWatchEventKinds
-import java.nio.file.StandardCopyOption
-import java.nio.file.WatchKey
-import java.nio.file.WatchEvent
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardWatchEventKinds
+import java.nio.file.WatchEvent
+import java.nio.file.WatchKey
+
 import scala.collection.JavaConversions._
-import java.lang.ref.WeakReference
-import com.idyria.osi.tea.os.OSDetector
+
+import com.idyria.osi.tea.logging.TLogSource
+import com.idyria.osi.tea.thread.ThreadLanguage
 
 /**
  * @author zm4632
@@ -32,21 +32,136 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
   }
 
+  def isMonitoredBy(sourceListener: Any, f: File) = {
+    //println("Checking monitored by of : "+f+ " -> "+ f.isDirectory() )
+    f.isDirectory() match {
+      case true =>
+        this.directoryChangeListeners.get(f.getAbsolutePath) match {
+          case None =>
+            false
+          case Some(listenersMap) =>
+
+            listenersMap.keys.find {
+              case ref if (ref.get() == null) => false
+              case ref => ref.get == sourceListener
+            }.isDefined
+        }
+      case false =>
+        this.changeListeners.get(f.getAbsolutePath) match {
+          case None =>
+            false
+          case Some(listenersMap) =>
+            listenersMap.keys.find {
+              case ref if (ref.get() == null) => false
+              case ref => ref.get == sourceListener
+            }.isDefined
+        }
+    }
+  }
+
+  /**
+   * Watch on all subfiles and also keep track of added files
+   */
+  def watchDirectoryRecursive(sourceListener: Any, f: File)(cl: File => Any) : Unit = {
+
+    //-- Watch on parent file for new addition of current file
+    val parentFile = f.getParentFile
+    this.onDirectoryChange(sourceListener, parentFile) {
+      case f if (f.getName==f.getName) =>
+        //- Recal recursive watch
+        println("Base foler: "+f+" was removed and readded, rewatching it")
+        watchDirectoryRecursive(sourceListener, f)(cl)
+      case f => 
+    }
+
+    //-- Function to start watching new files
+    def watchNewFiles(changed: File): Unit = {
+      if (changed.isDirectory && !isMonitoredBy(sourceListener, changed)) {
+
+        //-- Start Watching
+        //println("Watching new directory: " + changed)
+        this.onDirectoryChange(sourceListener, changed)(cl)
+
+        //-- Call listener on existing content
+        //-- Go throught hiearchy
+        var subFiles = Files.walk(f.toPath())
+        subFiles.forEach {
+          f =>
+            f.toFile.isDirectory() match {
+              case true =>
+                this.onDirectoryChange(sourceListener, f.toFile) {
+                  changed =>
+                    cl(changed)
+                    watchNewFiles(changed)
+                }
+    
+              case false =>
+                cl(f.toFile)
+            }
+        }
+        /*changed.listFiles().foreach {
+          case f if (f.isFile) =>
+            // println("Existing file content: "+f)
+            cl(f)
+          // Directory don't do anything
+          case f =>
+
+        }*/
+
+      }
+    }
+
+    //-- Listen to base folder
+    this.onDirectoryChange(sourceListener, f) {
+      changed =>
+        cl(changed)
+        watchNewFiles(changed)
+
+    }
+
+    //-- Go throught hiearchy
+    var subFiles = Files.walk(f.toPath())
+    subFiles.forEach {
+      f =>
+        f.toFile.isDirectory() match {
+          case true =>
+            this.onDirectoryChange(sourceListener, f.toFile) {
+              changed =>
+                cl(changed)
+                watchNewFiles(changed)
+            }
+
+          case false =>
+          // this.onFileChange(sourceListener, f.toFile)(cl)
+        }
+    }
+
+  }
+
   def onDirectoryChange(sourceListener: Any, f: File)(cl: File => Any) = {
     f match {
+      
+    
+      
       case f if (!f.isDirectory()) =>
-        new RuntimeException("Cannot Watch Directory Change on File")
+        throw new RuntimeException("Cannot Watch Directory Change on File")
+        
+      // If already watched
+        // FIXME not really valid, should be if watched and by this very same sourceListener too)
+      case d if (this.baseDirectories.find {case (key,file) => file.getAbsolutePath==f.getAbsolutePath}.isDefined) => 
       case d =>
 
         // to path
         var directoryPath = FileSystems.getDefault().getPath(d.getAbsolutePath)
+
+        //watcher.
 
         // Register if necessary
         this.baseDirectories.find { case (key, file) => file.getCanonicalFile.getAbsolutePath == d.getCanonicalFile.getAbsolutePath } match {
           case Some(entry) =>
           case None =>
             logFine[FileWatcherAdvanced](s"///////////// Registering Folder " + directoryPath)
-            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE)
+            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE)
             this.baseDirectories = this.baseDirectories + (watchKey -> d.getCanonicalFile)
         }
 
@@ -80,7 +195,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
   def onFileChange(sourceListener: Any, f: File)(cl: File => Any) = {
 
     f match {
-      case f if (f.isDirectory()) => new RuntimeException("Cannot Watch File Change on Directory")
+      case f if (f.isDirectory()) => throw new RuntimeException("Cannot Watch File Change on Directory")
       case f =>
 
         // to path
@@ -98,12 +213,12 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
         // Save listener
         //-----------------
-         //-- Make File path low case on windows
+        //-- Make File path low case on windows
         /*var fileAbsolutePath = OSDetector.isWindows match {
           case true => f.getAbsolutePath.toLowerCase()
           case false => f.getAbsolutePath
         }*/
-        
+
         //-- Get Listerners map 
         var listenersMap = changeListeners.get(f.getAbsolutePath) match {
           case Some(listeners) => listeners
@@ -124,7 +239,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         listenersMap = listenersMap + sourceListenerPair
 
         //-- Update Map in main listeners
-       
+
         this.changeListeners = this.changeListeners.updated(sourcePath.toFile().getCanonicalPath, listenersMap)
 
         /* // Save listener
@@ -135,7 +250,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         listeners = listeners :+ { () => cl }
         this.changeListeners = this.changeListeners.updated(f.getAbsolutePath, listeners)*/
 
-        logFine[FileWatcherAdvanced](s"///////////// Recorded event for " +sourcePath.toFile().getCanonicalPath)
+        logFine[FileWatcherAdvanced](s"///////////// Recorded event for " + sourcePath.toFile().getCanonicalPath)
       // 
     }
 
@@ -150,7 +265,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
     while (!stop) {
 
       // Get Key
-  
+
       var key = watcher.take()
 
       try {
@@ -164,13 +279,43 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         //println(s"Key got events: "+events.size)
         events.filter { ev => ev.kind() != StandardWatchEventKinds.OVERFLOW } foreach {
 
+          // Directory remove
+          //-----------------
+          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_DELETE && be.count() <= 1) =>
+
+            var e = be.asInstanceOf[WatchEvent[Path]]
+
+            // Get Path of base directory
+            this.baseDirectories.get(key) match {
+              case Some(directoryFile) =>
+
+                // Get Path of file
+                var fileAbsoluteFile = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile()
+                var filePath = fileAbsoluteFile.getAbsolutePath
+
+                // Clean 
+                // Look in base dir. If found, remove key and all listeners
+                // FIXME If not it could be just a file
+                baseDirectories.find { case (key, f) => f.getAbsolutePath == filePath } match {
+                  case Some((key, file)) =>
+                    //println("Delete for Dir : " + filePath)
+                    baseDirectories = baseDirectories - key
+                    this.directoryChangeListeners = this.directoryChangeListeners - file.getAbsolutePath
+                  case None =>
+
+                }
+              case None =>
+            }
+
           // Directory Add
           //----------------------
-          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_CREATE && be.count()<=1) =>
+          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_CREATE && be.count() <= 1) =>
             var e = be.asInstanceOf[WatchEvent[Path]]
 
             // Get Path of directory
             var directoryFile = this.baseDirectories.get(key).get
+
+            // println(s"Directory add in $directoryFile for ${e.context()}")
 
             // Get Path of file
             var fileAbsoluteFile = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile()
@@ -185,8 +330,8 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
                 listenersMap.foreach {
                   case (ref, listeners) if (ref.get == null) =>
                     var newListernersMap = listenersMap - ref
-                   this.directoryChangeListeners = this.directoryChangeListeners.updated(directoryFile.getAbsolutePath, listenersMap)
-                  
+                    this.directoryChangeListeners = this.directoryChangeListeners.updated(directoryFile.getAbsolutePath, listenersMap)
+
                   case (ref, listeners) =>
                     listeners.foreach {
                       l =>
@@ -209,10 +354,9 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
           // File Modify
           //----------------
-          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_MODIFY && be.count()<=1) =>
+          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_MODIFY && be.count() <= 1) =>
 
             var e = be.asInstanceOf[WatchEvent[Path]]
-          
 
             // Get Path of directory
             var directoryFile = this.baseDirectories.get(key).get
@@ -223,32 +367,32 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
             //var filePath = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile().getAbsolutePath
 
             //var filePath = 
-            logFine[FileWatcherAdvanced](s"///////////// Got Modify event for "+filePath+ s" ${fileAbsoluteFile.lastModified()}// "+e.context().toAbsolutePath().toFile().getAbsolutePath+"//"+directoryFile.toPath())
-            logFine[FileWatcherAdvanced](s"///////////// Count: "+be.count())
+            logFine[FileWatcherAdvanced](s"///////////// Got Modify event for " + filePath + s" ${fileAbsoluteFile.lastModified()}// " + e.context().toAbsolutePath().toFile().getAbsolutePath + "//" + directoryFile.toPath())
+            logFine[FileWatcherAdvanced](s"///////////// Count: " + be.count())
 
             // Get and run listeners
-            
+
             changeListeners.get(fileAbsoluteFile.getAbsolutePath) match {
               case Some(listenersMap) =>
-                
+
                 logFine[FileWatcherAdvanced](s"///////////// Listeners Map Present")
                 listenersMap.foreach {
                   case (ref, listeners) if (ref.get == null) =>
-                    
+
                     logFine[FileWatcherAdvanced](s"///////////// Reference for set of listeners is void")
                     var newListernersMap = listenersMap - ref
-                   this.directoryChangeListeners = this.directoryChangeListeners.updated(directoryFile.getAbsolutePath, listenersMap)
-                  
+                    this.directoryChangeListeners = this.directoryChangeListeners.updated(directoryFile.getAbsolutePath, listenersMap)
+
                   case (ref, listeners) =>
-                    
-                    logFine[FileWatcherAdvanced](s"///////////// Delivering for reference listener: "+ref.get)
+
+                    logFine[FileWatcherAdvanced](s"///////////// Delivering for reference listener: " + ref.get)
                     listeners.foreach {
                       l =>
                         // println(s"Running event")
                         l(fileAbsoluteFile)
                     }
                 }
-                /*listeners.foreach {
+              /*listeners.foreach {
                   l =>
                     // println(s"Running event")
                     l()
@@ -258,7 +402,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
           case e =>
 
-           // logWarn(s"///////////// Got Unsupported Event ")
+          // logWarn(s"///////////// Got Unsupported Event ")
         }
 
       } finally {

@@ -8,7 +8,7 @@ node {
     checkout scm
     sh "${mvnHome}/bin/mvn -B clean"
   }
-
+s
   stage('Build') {
     sh "${mvnHome}/bin/mvn -B  compile test-compile"
   }
@@ -18,10 +18,28 @@ node {
     junit '**/target/surefire-reports/TEST-*.xml'
   }
 
-  stage('Deploy') {
-      sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore deploy"
-      step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+  if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master') {
+	  
+	  stage('Deploy') {
+		  sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore deploy"
+		  step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+	  }
+
+    // Trigger sub builds on dev
+    if (env.BRANCH_NAME == 'dev') {
+      build job: '../ooxoo-core/dev'
+    }
+
+  } else {
+	  
+    stage('Package') {
+        sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore deploy"
+        step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
+    }
+	
   }
+
+  
 
 
 }

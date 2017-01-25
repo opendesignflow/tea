@@ -27,13 +27,16 @@ node {
 
     // Trigger sub builds on dev
     if (env.BRANCH_NAME == 'dev') {
-      build job: '../ooxoo-core/dev'
+      stage("Downstream") {
+        build job: '../ooxoo-core/dev'
+      }
+      
     }
 
   } else {
 	  
     stage('Package') {
-        sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore deploy"
+        sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore package"
         step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
     }
 	

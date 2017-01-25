@@ -8,7 +8,7 @@ node {
     checkout scm
     sh "${mvnHome}/bin/mvn -B clean"
   }
-s
+
   stage('Build') {
     sh "${mvnHome}/bin/mvn -B  compile test-compile"
   }

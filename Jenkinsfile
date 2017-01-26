@@ -29,7 +29,7 @@ node {
     if (env.BRANCH_NAME == 'dev') {
       stage("Downstream") { 
         build job: '../ooxoo-core/dev', parameters: [[$class: 'BooleanParameterValue', name: 'wait', value:
-        'false'], [$class: 'BooleanParameterValue', name:'propagate', value: "false"]]
+        false], [$class: 'BooleanParameterValue', name:'propagate', value: false]]
       }
       
     }

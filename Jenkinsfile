@@ -27,8 +27,8 @@ node {
 
     // Trigger sub builds on dev
     if (env.BRANCH_NAME == 'dev') {
-      stage("Downstream") {
-        build job: '../ooxoo-core/dev', , parameters: [[$class: 'BooleanParameterValue', name: 'wait', value:
+      stage("Downstream") { 
+        build job: '../ooxoo-core/dev', parameters: [[$class: 'BooleanParameterValue', name: 'wait', value:
         'false'], [$class: 'BooleanParameterValue', name:'propagate', value: "false"]]
       }
       

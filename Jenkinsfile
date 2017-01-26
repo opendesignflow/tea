@@ -28,7 +28,7 @@ node {
     // Trigger sub builds on dev
     if (env.BRANCH_NAME == 'dev') {
       stage("Downstream") { 
-        build job: '../ooxoo-core/dev', parameters: wait: false, propagate: false
+        build job: '../ooxoo-core/dev', wait: false, propagate: false
       }
       
     }

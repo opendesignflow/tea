@@ -29,7 +29,7 @@ node {
     if (env.BRANCH_NAME == 'dev') {
       stage("Downstream") { 
         build job: '../ooxoo-core/dev', wait: false, propagate: false
-      }
+      } 
       
     }
 

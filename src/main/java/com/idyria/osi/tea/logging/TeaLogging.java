@@ -168,7 +168,7 @@ public class TeaLogging {
 		// Retrieve Caller informations
 		StackTraceElement elt = getCallerStackTrace(3);
 
-		Class cl = null;
+		Class<?> cl = null;
 		try {
 			cl = Thread.currentThread().getContextClassLoader().loadClass(elt.getClassName());
 			while (cl.getEnclosingClass() != null)
@@ -239,7 +239,7 @@ public class TeaLogging {
 		// Retrieve Caller informations
 		StackTraceElement elt = getCallerStackTrace(3);
 
-		Class cl = null;
+		Class<?> cl = null;
 		try {
 			cl = Thread.currentThread().getContextClassLoader().loadClass(elt.getClassName());
 			while (cl.getEnclosingClass() != null)

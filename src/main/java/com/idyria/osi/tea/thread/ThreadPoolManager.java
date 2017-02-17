@@ -73,8 +73,8 @@ public final class ThreadPoolManager implements ExecutorService,ScheduledExecuto
 	 * @param run
 	 * @return
 	 */
-	public synchronized Future submit(Runnable run) {
-		Future f = null;
+	public synchronized Future<?> submit(Runnable run) {
+		Future<?> f = null;
 		synchronized (this.executor) {
 
 			try {
@@ -150,7 +150,7 @@ public final class ThreadPoolManager implements ExecutorService,ScheduledExecuto
 	}
 
 	public synchronized <T> Future<T> submit(Callable<T> run) {
-		Future f = null;
+		Future<T> f = null;
 		synchronized (this.executor) {
 
 			try {
@@ -163,7 +163,7 @@ public final class ThreadPoolManager implements ExecutorService,ScheduledExecuto
 	}
 
 	public synchronized <T> Future<T> submit(Runnable run, T t) {
-		Future f = null;
+		Future<T> f = null;
 		synchronized (this.executor) {
 
 			try {

@@ -1,16 +1,17 @@
 package com.idyria.osi.tea.compile
 
 import java.io.File
+import com.idyria.osi.tea.errors.TError
 
-class CompileError(msg:String) extends RuntimeException(msg) {
+class CompileError(msg:String) extends TError(msg) {
 
 }
 
 class FileCompileError(var message: String) extends CompileError(message) {
 
-  var file = "<none>"
-  var line = 0
-  var column = 0
+  //var file = "<none>"
+  //var line = 0
+ // var column = 0
   var errorMessage = ""
   
   // Search for file and columns etc...
@@ -21,8 +22,8 @@ class FileCompileError(var message: String) extends CompileError(message) {
     case Some(res) => 
       
       // File Line
-      file = res.group(1)
-      line = res.group(2).toInt
+      file = Some(res.group(1))
+      line = Some(res.group(2).toInt)
       errorMessage = res.group(3)
       
       // Column
@@ -30,7 +31,7 @@ class FileCompileError(var message: String) extends CompileError(message) {
         
         // Column is number of spaces minus to remove the ^ character present in error message
         case Some(columnStrMatch) => 
-          column = columnStrMatch.length() -1
+          column = Some(columnStrMatch.length() -1)
         case None => 
       }
      

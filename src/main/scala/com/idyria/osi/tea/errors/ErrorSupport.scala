@@ -2,8 +2,9 @@ package com.idyria.osi.tea.errors
 
 import scala.collection.mutable.Stack
 import scala.reflect.ClassTag
+import com.idyria.osi.tea.TeaPredef
 
-trait ErrorSupport {
+trait ErrorSupport extends TeaPredef {
 
   var errors = Stack[Throwable]()
 

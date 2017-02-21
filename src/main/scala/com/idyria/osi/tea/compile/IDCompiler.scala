@@ -59,6 +59,11 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
     bootclasspath = filtered.toList ::: bootclasspath*/
 
   }
+  
+  def setParentClassLoader(cl:ClassLoader) = {
+    this.compilerClassDomain = new ClassDomain(cl)
+    updateSettings
+  }
 
   //--- Scala Compiler and library go to boot classpath
   try {

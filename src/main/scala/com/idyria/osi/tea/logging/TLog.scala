@@ -143,6 +143,10 @@ object TLog {
     levels = levels + (cl.getCanonicalName() -> level)
   }
   
+  def enableFull[T](implicit tag : ClassTag[T]) = {
+    this.setLevel(tag.runtimeClass, Level.FULL)
+  }
+  
   def getRealms = {
     this.levels.keys
   }

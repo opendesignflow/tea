@@ -46,6 +46,13 @@ trait ErrorSupport extends TeaPredef {
     }
   }
   
+  def consumePrintErrorsToStdErr = {
+    this.consumeErrors {
+      e => 
+        e.printStackTrace(System.err)
+    }
+  }
+  
   /**
    * Run somethign and catch error on target object
    * Error is transmitted

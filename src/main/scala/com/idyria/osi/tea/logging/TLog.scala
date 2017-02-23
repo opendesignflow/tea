@@ -6,6 +6,16 @@ import scala.reflect.ClassTag
 
 trait TLogSource {
 
+  def tlogEnableFull[T](implicit tag: ClassTag[T]) = {
+    var t = new Throwable
+    t.fillInStackTrace()
+    var cause = t.getStackTrace()(2)
+    
+    println(s"****////***** Enabling full log for ${tag.runtimeClass} from: ${cause.getClassName}:${cause.getLineNumber} ****////*****")
+    t.printStackTrace(System.out)
+    TLog.setLevel(tag.runtimeClass, TLog.Level.FULL)
+  }
+  
   def logError[T: ClassTag](msg: => String): Unit = {
 
     doLog[T](TLog.Level.ERROR, { () => msg })

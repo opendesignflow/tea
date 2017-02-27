@@ -30,7 +30,11 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
   def stop = {
 
-    watcherThread.interrupt()
+    try {
+      watcherThread.interrupt()
+    } catch {
+      case e: Throwable =>
+    }
   }
 
   def isMonitoredBy(sourceListener: Any, f: File) = {
@@ -161,7 +165,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
           case Some(entry) =>
           case None =>
             logFine[FileWatcherAdvanced](s"///////////// Registering Folder " + directoryPath)
-            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE,StandardWatchEventKinds.ENTRY_MODIFY)
+            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
             this.baseDirectories = this.baseDirectories + (watchKey -> d.getCanonicalFile)
         }
 
@@ -207,7 +211,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
           case Some(entry) =>
           case None =>
             logFine[FileWatcherAdvanced](s"///////////// Registering Folder " + directoryPath)
-            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE,StandardWatchEventKinds.ENTRY_MODIFY)
+            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
             this.baseDirectories = this.baseDirectories + (watchKey -> f.getParentFile.getCanonicalFile)
         }
 

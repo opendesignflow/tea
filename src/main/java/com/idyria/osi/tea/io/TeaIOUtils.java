@@ -91,6 +91,7 @@ public class TeaIOUtils {
 	
 	/**
 	 * Returns a byte array containing the totality of the InputStream.
+	 * Does not rely on available
 	 * @param is The Output byte array will be extended
 	 * @return if stream is not readable
 	 */

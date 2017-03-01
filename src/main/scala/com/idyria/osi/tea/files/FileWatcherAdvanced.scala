@@ -23,6 +23,8 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
   var changeListeners = Map[String, Map[WeakReference[Any], List[File => Any]]]()
   var directoryChangeListeners = Map[String, Map[WeakReference[Any], List[File => Any]]]()
 
+  var lastFileModification = Map[String, Long]()
+
   def start = {
     logFine[FileWatcherAdvanced](s"////////////// Startin watcher")
     watcherThread.start()
@@ -281,6 +283,8 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
         var events = key.pollEvents()
         key.reset()
         //println(s"Key got events: "+events.size)
+
+        // Filter Overflow 
         events.filter { ev => ev.kind() != StandardWatchEventKinds.OVERFLOW } foreach {
 
           // Directory remove
@@ -375,33 +379,42 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
             logFine[FileWatcherAdvanced](s"///////////// Count: " + be.count())
 
             // Get and run listeners
+            // Filter if last file modification is the same
+            this.lastFileModification.get(fileAbsoluteFile.getCanonicalPath) match {
+              // Ignore
+              case Some(lastTime) if (lastTime >= fileAbsoluteFile.lastModified()) =>
 
-            changeListeners.get(fileAbsoluteFile.getAbsolutePath) match {
-              case Some(listenersMap) =>
+              // Run in other cases
+              case other =>
+                
+                // Save time
+                this.lastFileModification = this.lastFileModification.updated(fileAbsoluteFile.getCanonicalPath,fileAbsoluteFile.lastModified())
+                
+                // Runs
+                changeListeners.get(fileAbsoluteFile.getAbsolutePath) match {
+                  case Some(listenersMap) =>
 
-                logFine[FileWatcherAdvanced](s"///////////// Listeners Map Present")
-                listenersMap.foreach {
-                  case (ref, listeners) if (ref.get == null) =>
+                    logFine[FileWatcherAdvanced](s"///////////// Listeners Map Present")
+                    listenersMap.foreach {
+                      case (ref, listeners) if (ref.get == null) =>
 
-                    logFine[FileWatcherAdvanced](s"///////////// Reference for set of listeners is void")
-                    var newListernersMap = listenersMap - ref
-                    this.directoryChangeListeners = this.directoryChangeListeners.updated(directoryFile.getAbsolutePath, listenersMap)
+                        logFine[FileWatcherAdvanced](s"///////////// Reference for set of listeners is void")
+                        var newListernersMap = listenersMap - ref
+                        this.directoryChangeListeners = this.directoryChangeListeners.updated(directoryFile.getAbsolutePath, listenersMap)
 
-                  case (ref, listeners) =>
+                      case (ref, listeners) =>
 
-                    logFine[FileWatcherAdvanced](s"///////////// Delivering for reference listener: " + ref.get)
-                    listeners.foreach {
-                      l =>
-                        // println(s"Running event")
-                        l(fileAbsoluteFile)
+                        logFine[FileWatcherAdvanced](s"///////////// Delivering for reference listener: " + ref.get)
+                        listeners.foreach {
+                          l =>
+                            // println(s"Running event")
+                            l(fileAbsoluteFile)
+                        }
                     }
+
+                  case None =>
                 }
-              /*listeners.foreach {
-                  l =>
-                    // println(s"Running event")
-                    l()
-                }*/
-              case None =>
+
             }
 
           case e =>

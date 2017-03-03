@@ -91,7 +91,7 @@ trait TLogSource {
     //println("Logging realm: " + realm)
 
     isLogLevel(level, realm) match {
-      case true => println(s"""$resolvedRealm [$level] ${message()}""")
+      case true => println(s"""$resolvedRealm (T:${Thread.currentThread().getId}) [$level] ${message()}""")
       case false =>
     }
     /*TLog.levels.get(resolvedRealm) match {

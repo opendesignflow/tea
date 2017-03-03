@@ -10,8 +10,10 @@ trait ErrorSupport extends TeaPredef {
 
   // Error Add/Remove
   //-----------
-  def addError(e: Throwable) = {
-    this.errors.push(e)
+  def addError(e: Throwable) = this.errors.contains(e) match {
+    case true => 
+    case false => 
+      this.errors.push(e)
   }
   
   def resetErrors = this.errors.clear()
@@ -60,7 +62,7 @@ trait ErrorSupport extends TeaPredef {
   def catchErrorsOn[RT](target: ErrorSupport)(cl: => RT): RT = {
 
     try {
-      target.resetErrors
+      //target.resetErrors
       cl
     } catch {
       case e: Throwable =>
@@ -75,12 +77,16 @@ trait ErrorSupport extends TeaPredef {
    */
   def keepErrorsOn[RT](target: ErrorSupport,verbose:Boolean=false)(cl: => RT): Option[RT] = {
     try {
-      target.resetErrors
+     // target.resetErrors
       Some(cl)
     } catch {
       case e: Throwable =>
-        if(verbose)
-          e.printStackTrace()
+        verbose match {
+          case true => 
+             e.printStackTrace()
+          case false => 
+        }
+         
         target.addError(e)
         None
     }

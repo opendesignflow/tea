@@ -39,6 +39,33 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
     }
   }
 
+  def cleanFor(listener: Any) = {
+
+    synchronized {
+
+      this.directoryChangeListeners.foreach {
+        case (file, listenersMap) =>
+          this.directoryChangeListeners = this.directoryChangeListeners.updated(file, listenersMap.filterNot {
+            case (ref, listeners) if (ref.get() == null) => true
+            case (ref, listeners) if (ref.get() == listener) => true
+            case other => false
+          })
+      }
+      
+      this.changeListeners.foreach {
+        case (file, listenersMap) =>
+          this.changeListeners = this.changeListeners.updated(file, listenersMap.filterNot {
+            case (ref, listeners) if (ref.get() == null) => true
+            case (ref, listeners) if (ref.get() == listener) => true
+            case other => false
+          })
+      }
+      //this.changeListeners
+
+    }
+
+  }
+
   def isMonitoredBy(sourceListener: Any, f: File) = {
     //println("Checking monitored by of : "+f+ " -> "+ f.isDirectory() )
     f.isDirectory() match {
@@ -98,12 +125,14 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
               case true =>
                 this.onDirectoryChange(sourceListener, f.toFile) {
                   changed =>
-                    cl(changed)
+
+                    try { cl(changed) } catch { case e: Throwable => e.printStackTrace() }
                     watchNewFiles(changed)
                 }
 
               case false =>
-                cl(f.toFile)
+                try { cl(f.toFile) } catch { case e: Throwable => e.printStackTrace() }
+
             }
         }
         /*changed.listFiles().foreach {
@@ -134,7 +163,7 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
           case true =>
             this.onDirectoryChange(sourceListener, f.toFile) {
               changed =>
-                cl(changed)
+                try { cl(changed) } catch { case e: Throwable => e.printStackTrace() }
                 watchNewFiles(changed)
             }
 
@@ -386,10 +415,10 @@ class FileWatcherAdvanced extends ThreadLanguage with TLogSource {
 
               // Run in other cases
               case other =>
-                
+
                 // Save time
-                this.lastFileModification = this.lastFileModification.updated(fileAbsoluteFile.getCanonicalPath,fileAbsoluteFile.lastModified())
-                
+                this.lastFileModification = this.lastFileModification.updated(fileAbsoluteFile.getCanonicalPath, fileAbsoluteFile.lastModified())
+
                 // Runs
                 changeListeners.get(fileAbsoluteFile.getAbsolutePath) match {
                   case Some(listenersMap) =>

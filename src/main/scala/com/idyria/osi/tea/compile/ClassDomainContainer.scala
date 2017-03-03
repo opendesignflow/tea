@@ -74,7 +74,10 @@ trait ClassDomainContainer extends ListeningSupport {
 
   def taintClassDomain = {
     this.classdomain match {
-      case Some(cd) => cd.tainted = true
+      case Some(cd) => 
+        cd.tainted = true
+        cd.close
+        this.classdomain = None
       case None =>
     }
   }
@@ -100,6 +103,7 @@ trait ClassDomainContainer extends ListeningSupport {
     // Create and keep old parent
     this.classdomain match {
       case None =>
+        createNewClassDomain(Thread.currentThread().getContextClassLoader)
       case Some(actualCD) =>
         createNewClassDomain(actualCD.getParent)
     }

@@ -75,9 +75,9 @@ trait ClassDomainContainer extends ListeningSupport {
   def taintClassDomain = {
     this.classdomain match {
       case Some(cd) => 
+        this.classdomain = None
         cd.tainted = true
         cd.close
-        this.classdomain = None
       case None =>
     }
   }

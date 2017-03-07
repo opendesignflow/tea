@@ -91,5 +91,15 @@ trait ErrorSupport extends TeaPredef {
         None
     }
   }
+  
+  def ignoreErrors[RT](cl: => RT) : Option[RT]  = {
+    try {
+     // target.resetErrors
+      Some(cl)
+    } catch {
+      case e: Throwable =>
+        None
+    }
+  }
 
 }

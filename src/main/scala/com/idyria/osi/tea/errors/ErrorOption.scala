@@ -288,7 +288,7 @@ final case class ESome[+A](value: A) extends ErrorOption[A] {
 }
 
 final case class EError(value: TError) extends ErrorOption[Nothing] {
-  def isEmpty = false
+  def isEmpty = true
   def get = throw new NoSuchElementException("ENone.get")
   
   

@@ -91,6 +91,40 @@ public class TeaIOUtils {
 	
 	/**
 	 * Returns a byte array containing the totality of the InputStream.
+	 * @param is The available size should return the complete size of the stream
+	 * @return null if stream is not readable
+	 */
+	public static byte[] swallowBytes(InputStream is,int count) {
+		
+		
+		try {
+			// Create
+			byte[] res = new byte[count];
+			int buffsize = BUFF_SIZE;
+			byte[] buff = new byte[buffsize];
+			int sizeRead = 0;
+			int position = 0;
+			// Swallow
+			while ( (sizeRead = is.read(buff))!=-1  ) {
+				
+				// Copy
+				System.arraycopy(buff, 0, res, position, sizeRead);
+				position+=sizeRead;
+				
+			}
+			return res;
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
+		
+	}
+	
+	/**
+	 * Returns a byte array containing the totality of the InputStream.
 	 * Does not rely on available
 	 * @param is The Output byte array will be extended
 	 * @return if stream is not readable

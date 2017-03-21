@@ -257,11 +257,11 @@ public class TeaIOUtils {
 	 * @param content
 	 * @throws IOException 
 	 */
-	public static void writeToFile(File file , String content) throws IOException {
-		TeaIOUtils.writeToFile(file, content, true);
+	public static File writeToFile(File file , String content) throws IOException {
+		return TeaIOUtils.writeToFile(file, content, true);
 	}
 	
-	public static void writeToFile(File file , String content,boolean overwrite) throws IOException {
+	public static File  writeToFile(File file , String content,boolean overwrite) throws IOException {
 		
 		//-- If exists and nor overwrite, don'T do
 		if (file.exists() && !overwrite) {
@@ -274,6 +274,7 @@ public class TeaIOUtils {
 			out.close();
 		
 		}
+		return file;
 	}
 	
 	/**
@@ -282,7 +283,7 @@ public class TeaIOUtils {
 	 * @param content
 	 * @throws IOException 
 	 */
-	public static void writeToFile(File file , InputStream content) throws IOException {
+	public static File writeToFile(File file , InputStream content) throws IOException {
 
 		
 		//-- Use Java 1.7 Nio
@@ -296,6 +297,8 @@ public class TeaIOUtils {
 		FileOutputStream fos = new FileOutputStream(file);
 		fos.getChannel().write(contentChannel.)
 		*/
+		
+		return file;
 		
 	}
 	

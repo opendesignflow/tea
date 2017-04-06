@@ -53,4 +53,9 @@ trait TeaPredef {
     }
   }
   
+  def withEmpty[A](lst:Iterable[A])(cl: PartialFunction[Option[Iterable[A]],Unit]) = lst.size match {
+    case 0 => cl(None)
+    case other => cl(Some(lst))
+  }
+  
 }

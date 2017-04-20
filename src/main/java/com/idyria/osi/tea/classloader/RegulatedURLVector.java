@@ -7,9 +7,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Vector;
-import java.util.logging.Level;
-
-import com.idyria.osi.tea.logging.TeaLogging;
 
 /**
  * @author Richnou

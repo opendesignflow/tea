@@ -4,7 +4,6 @@
 package com.idyria.osi.tea.map;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author rtek

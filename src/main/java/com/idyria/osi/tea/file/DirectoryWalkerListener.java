@@ -3,8 +3,6 @@
  */
 package com.idyria.osi.tea.file;
 
-import java.io.File;
-
 /**
  * Listens to events notified by DirectoryWalker
  * @author Richnou

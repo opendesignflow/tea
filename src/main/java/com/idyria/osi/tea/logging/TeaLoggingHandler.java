@@ -16,16 +16,18 @@ import java.util.logging.LogRecord;
 public class TeaLoggingHandler extends Handler {
 
 	private ReentrantLock consoleLock = new ReentrantLock();
-	
+
 	/**
 	 * 
 	 */
 	public TeaLoggingHandler() {
 		// TODO Auto-generated constructor stub
-		//this.g
+		// this.g
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.util.logging.Handler#close()
 	 */
 	@Override
@@ -34,7 +36,9 @@ public class TeaLoggingHandler extends Handler {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.util.logging.Handler#flush()
 	 */
 	@Override
@@ -43,50 +47,51 @@ public class TeaLoggingHandler extends Handler {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.util.logging.Handler#publish(java.util.logging.LogRecord)
 	 */
 	@Override
 	public void publish(LogRecord record) {
 
-		// Select output
-		PrintStream out = record.getLevel() == Level.SEVERE?System.err:System.out;
-
 		if (record.getLevel().intValue() < this.getLevel().intValue())
 			return;
-		
+
 		consoleLock.lock();
 		// Print preamble
-		//---------------
-		
+		// ---------------
+		// Select output
+		PrintStream out = record.getLevel() == Level.SEVERE ? System.err : System.out;
+
 		// Indentation
 		if (record instanceof TeaLogRecord) {
-			for (int i=0;i<((TeaLogRecord) record).getIndentation();i++) {
+			for (int i = 0; i < ((TeaLogRecord) record).getIndentation(); i++) {
 				out.println("\t");
 			}
 		}
-		
-		//out.print("[");
+
+		// out.print("[");
 		// Level info
-		out.print("("+record.getLevel().toString()+") ");
-		
+		out.print("(" + record.getLevel().toString() + ") ");
+
 		// Time
-		out.print("("+record.getMillis()+") ");
-		
+		out.print("(" + record.getMillis() + ") ");
+
 		// Localisation
-		if (record.getSourceClassName()!=null)
+		if (record.getSourceClassName() != null)
 			out.print(record.getSourceClassName());
-		if (record.getSourceMethodName()!=null)
-			out.print("."+record.getSourceMethodName()+"()");
-		//out.print("]");
-		
+		if (record.getSourceMethodName() != null)
+			out.print("." + record.getSourceMethodName() + "()");
+		// out.print("]");
+
 		// Print message
-		//----------------------
+		// ----------------------
 		out.print(record.getMessage());
-		
+
 		// Close line
 		out.println();
-		
+	
 		consoleLock.unlock();
 
 	}

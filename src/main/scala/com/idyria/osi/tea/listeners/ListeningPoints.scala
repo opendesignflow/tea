@@ -98,9 +98,9 @@ trait ListeningSupport {
     // Prepare closure
     var cl = { 
       (in: Any) => 
-        if (tag.runtimeClass.isAssignableFrom(in.getClass())) {
+        //if (tag.runtimeClass.isAssignableFrom(in.getClass())) {
           closure(in.asInstanceOf[T]) 
-        }
+        //}
         
     }
     

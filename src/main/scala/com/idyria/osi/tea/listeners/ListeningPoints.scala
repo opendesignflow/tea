@@ -180,6 +180,9 @@ trait ListeningSupport {
     }
   }
 
+  /**
+   * Type mismatch between listener and event triggers are just caught
+   */
   def @->[T <: Any](point: String, input: T) = {
 
     //println("Running point "+point+", size: "+this.listeningPoints.size)
@@ -187,8 +190,12 @@ trait ListeningSupport {
     this.listeningPointsWith.get(point) match {
       case Some(set) => set.foreach {
        cl =>
+         // Class Cast exception might happend if listeners are listening to the wrong type so catch it
          try {
-         cl(input)
+          cl(input)
+         } catch {
+           case e : java.lang.ClassCastException => 
+             
          } finally {
            if (cl.isInstanceOf[ListenerTransient]) {
              deregister(cl)

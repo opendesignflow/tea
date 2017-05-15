@@ -62,7 +62,7 @@ trait TLogSource {
   def isLogLevel(level: TLog.Level.Level, realm: String) = {
     TLog.levels.get(realm) match {
       case Some(rl) if (rl >= level) => true
-      case None if (level <= TLog.Level.ERROR) => true
+      case None if (level <= TLog.Level.WARNING) => true
       case _ => false
     }
   }

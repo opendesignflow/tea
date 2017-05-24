@@ -4,7 +4,6 @@
 package com.idyria.osi.tea.dnd;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Collection;
 
 /**

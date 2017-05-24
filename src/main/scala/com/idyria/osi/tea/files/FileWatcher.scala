@@ -22,7 +22,7 @@ class FileWatcher extends ThreadLanguage with TLogSource {
   var directoryChangeListeners = Map[String, List[File => Any]]()
 
   def start = {
-    println(s"////////////// Startin watcher")
+    logFine[FileWatcher](s"////////////// Startin watcher")
     watcherThread.start()
   }
 

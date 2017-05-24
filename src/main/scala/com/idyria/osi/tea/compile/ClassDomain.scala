@@ -3,6 +3,9 @@ package com.idyria.osi.tea.compile
 import java.net.URL
 import java.net.URLClassLoader
 import com.sun.org.apache.bcel.internal.generic.LoadClass
+import java.io.File
+import com.idyria.osi.tea.io.TeaIOUtils
+import java.io.FileInputStream
 
 /**
  *
@@ -52,6 +55,16 @@ class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p
         }
 
     }
+  }
+  
+  def loadClassFromFile(name:String,f:File) = {
+    
+    var bytes = TeaIOUtils.swallow(new FileInputStream(f))
+    
+    defineClass(name, bytes, 0 , bytes.length)
+    
+    
+    
   }
 
 

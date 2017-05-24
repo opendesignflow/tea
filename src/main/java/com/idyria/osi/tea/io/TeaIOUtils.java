@@ -10,8 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -19,8 +17,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.Scanner;
-
-import com.idyria.osi.tea.random.UniqueLongGenerator;
 
 /**
  * @author rtek
@@ -91,6 +87,41 @@ public class TeaIOUtils {
 	
 	/**
 	 * Returns a byte array containing the totality of the InputStream.
+	 * @param is The available size should return the complete size of the stream
+	 * @return null if stream is not readable
+	 */
+	public static byte[] swallowBytes(InputStream is,int count) {
+		
+		
+		try {
+			// Create
+			byte[] res = new byte[count];
+			int buffsize = BUFF_SIZE;
+			byte[] buff = new byte[buffsize];
+			int sizeRead = 0;
+			int position = 0;
+			// Swallow
+			while ( (sizeRead = is.read(buff))!=-1  ) {
+				
+				// Copy
+				System.arraycopy(buff, 0, res, position, sizeRead);
+				position+=sizeRead;
+				
+			}
+			return res;
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
+		
+	}
+	
+	/**
+	 * Returns a byte array containing the totality of the InputStream.
+	 * Does not rely on available
 	 * @param is The Output byte array will be extended
 	 * @return if stream is not readable
 	 */
@@ -102,13 +133,13 @@ public class TeaIOUtils {
 			int buffsize = BUFF_SIZE;
 			byte[] buff = new byte[buffsize];
 			int sizeRead = 0;
-			int position = 0;
+
 			// Swallow
 			while ( (sizeRead = is.read(buff))!=-1  ) {
 				
 				// Copy
 				os.write(buff,0,sizeRead);
-				position+=sizeRead;
+				
 				
 			}
 			return os.toByteArray();
@@ -222,11 +253,11 @@ public class TeaIOUtils {
 	 * @param content
 	 * @throws IOException 
 	 */
-	public static void writeToFile(File file , String content) throws IOException {
-		TeaIOUtils.writeToFile(file, content, true);
+	public static File writeToFile(File file , String content) throws IOException {
+		return TeaIOUtils.writeToFile(file, content, true);
 	}
 	
-	public static void writeToFile(File file , String content,boolean overwrite) throws IOException {
+	public static File  writeToFile(File file , String content,boolean overwrite) throws IOException {
 		
 		//-- If exists and nor overwrite, don'T do
 		if (file.exists() && !overwrite) {
@@ -239,6 +270,7 @@ public class TeaIOUtils {
 			out.close();
 		
 		}
+		return file;
 	}
 	
 	/**
@@ -247,7 +279,7 @@ public class TeaIOUtils {
 	 * @param content
 	 * @throws IOException 
 	 */
-	public static void writeToFile(File file , InputStream content) throws IOException {
+	public static File writeToFile(File file , InputStream content) throws IOException {
 
 		
 		//-- Use Java 1.7 Nio
@@ -261,6 +293,8 @@ public class TeaIOUtils {
 		FileOutputStream fos = new FileOutputStream(file);
 		fos.getChannel().write(contentChannel.)
 		*/
+		
+		return file;
 		
 	}
 	

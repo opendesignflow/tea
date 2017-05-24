@@ -9,8 +9,6 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.idyria.osi.tea.logging.TeaLogging;
-
 /**
  * 
  * This Class Finds in a group of string, the common components in the beginning

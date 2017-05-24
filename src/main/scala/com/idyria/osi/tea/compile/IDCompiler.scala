@@ -27,7 +27,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
   var imain: Option[IMain] = None
 
   //-- Create Classdomain for Compiler
-  var compilerClassDomain = new ClassDomain(Thread.currentThread().getContextClassLoader)
+  var compilerClassDomain = new ClassDomain(Runtime.getRuntime.getClass.getClassLoader)
 
   // Source/Output Pairs
   //---------------------------
@@ -59,6 +59,11 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
     bootclasspath = filtered.toList ::: bootclasspath*/
 
   }
+  
+  def setParentClassLoader(cl:ClassLoader) = {
+    this.compilerClassDomain = new ClassDomain(cl)
+    updateSettings
+  }
 
   //--- Scala Compiler and library go to boot classpath
   try {
@@ -70,7 +75,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
   }
 
   //-- Add stadnard classloader classes
-  List(getClass.getClassLoader).foreach {
+  /*List(getClass.getClassLoader).foreach {
     case cl: URLClassLoader =>
       //-- Gather URLS
       addClasspathURL(cl.getURLs())
@@ -81,7 +86,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
 
       }
     case _ =>
-  }
+  }*/
 
   /**
    * Update Settings values

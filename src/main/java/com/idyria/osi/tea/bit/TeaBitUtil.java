@@ -3,7 +3,6 @@
  */
 package com.idyria.osi.tea.bit;
 
-import java.math.BigInteger;
 import java.util.BitSet;
 
 /**

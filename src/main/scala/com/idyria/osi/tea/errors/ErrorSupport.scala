@@ -2,15 +2,18 @@ package com.idyria.osi.tea.errors
 
 import scala.collection.mutable.Stack
 import scala.reflect.ClassTag
+import com.idyria.osi.tea.TeaPredef
 
-trait ErrorSupport {
+trait ErrorSupport extends TeaPredef {
 
   var errors = Stack[Throwable]()
 
   // Error Add/Remove
   //-----------
-  def addError(e: Throwable) = {
-    this.errors.push(e)
+  def addError(e: Throwable) = this.errors.contains(e) match {
+    case true => 
+    case false => 
+      this.errors.push(e)
   }
   
   def resetErrors = this.errors.clear()
@@ -45,6 +48,13 @@ trait ErrorSupport {
     }
   }
   
+  def consumePrintErrorsToStdErr = {
+    this.consumeErrors {
+      e => 
+        e.printStackTrace(System.err)
+    }
+  }
+  
   /**
    * Run somethign and catch error on target object
    * Error is transmitted
@@ -52,7 +62,7 @@ trait ErrorSupport {
   def catchErrorsOn[RT](target: ErrorSupport)(cl: => RT): RT = {
 
     try {
-      target.resetErrors
+      //target.resetErrors
       cl
     } catch {
       case e: Throwable =>
@@ -67,13 +77,27 @@ trait ErrorSupport {
    */
   def keepErrorsOn[RT](target: ErrorSupport,verbose:Boolean=false)(cl: => RT): Option[RT] = {
     try {
-      target.resetErrors
+     // target.resetErrors
       Some(cl)
     } catch {
       case e: Throwable =>
-        if(verbose)
-          e.printStackTrace()
+        verbose match {
+          case true => 
+             e.printStackTrace()
+          case false => 
+        }
+         
         target.addError(e)
+        None
+    }
+  }
+  
+  def ignoreErrors[RT](cl: => RT) : Option[RT]  = {
+    try {
+     // target.resetErrors
+      Some(cl)
+    } catch {
+      case e: Throwable =>
         None
     }
   }

@@ -3,12 +3,6 @@
  */
 package com.idyria.osi.tea.io;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-
 /**
  * TeaPrintWriter that defaults to System.out output
  * 

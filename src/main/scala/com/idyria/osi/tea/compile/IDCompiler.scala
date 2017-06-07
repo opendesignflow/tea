@@ -1,3 +1,23 @@
+/*-
+ * #%L
+ * Tea Scala Utils Library
+ * %%
+ * Copyright (C) 2006 - 2017 Open Design Flow
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * #L%
+ */
 package com.idyria.osi.tea.compile
 
 import java.io.StringWriter
@@ -21,7 +41,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
   // Compiler Base
   //---------------
   var interpreterOutput = new StringWriter
-  var settings2 = new Settings({
+  val settings2 = new Settings({
     error => println("******* Error Happened ***********")
   })
   var imain: Option[IMain] = None
@@ -193,6 +213,31 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
   // Copmilation Interface
   //-------------------
 
+  def compileString(str:String) = {
+    
+     // Reset output
+    interpreterOutput.getBuffer().setLength(0)
+    
+    try {
+      getIMain.compileString(str)  match {
+        case false =>
+
+          // Prepare error
+          Some(new FileCompileError( interpreterOutput.toString().trim))
+
+        //throw new RuntimeException(s"Could not compile content: ${interpreterOutput.toString()}")
+        case _ => None
+      }
+    } finally {
+
+      // Reset output
+     //interpreterOutput.getBuffer().setLength(0)
+
+    }
+    
+    
+  }
+  
   def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
     getIMain.compileSourcesKeepingRun(sources: _*)._1
 

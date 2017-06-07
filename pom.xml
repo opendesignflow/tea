@@ -6,34 +6,59 @@
 	<name>Tea Scala Utils Library</name>
 	<parent>
 		<groupId>org.odfi</groupId>
-    	<artifactId>superpom-scala</artifactId>
-    	<version>2.12.2.r1</version>
+		<artifactId>superpom-scala</artifactId>
+		<version>2.12.2.r3</version>
 	</parent>
 
 
-	<!-- SCM -->
+	<!-- Project INfos -->
 	<!-- ### -->
+	<inceptionYear>2006</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License (AGPL) version 3.0</name>
+			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
+		</license>
+	</licenses>
+
+	<contributors>
+		<contributor>
+			<name>Richard Leys</name>
+			<email>leys.richard@gmail.com</email>
+		</contributor>
+	</contributors>
+	
+	
+
 	<scm>
-		<connection>scm:git:git@github.com:richnou/tea.git</connection>
-		<developerConnection>scm:git:git@github.com:richnou/tea.git</developerConnection>
+		<connection>scm:git:https://github.com/opendesignflow/tea.git</connection>
+		<developerConnection>scm:git:git@github.com:opendesignflow/tea.git</developerConnection>
 		<url>https://github.com/richnou/tea</url>
-		<tag>HEAD</tag>
 	</scm>
 
 
+	<!-- Plugins -->
+	<!-- ############## -->
 	<build>
 		<plugins>
 			<!-- Licenses -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>1.6</version>
+				<version>${license.plugin.version}</version>
 				<configuration>
-					<licenseName>gpl_v3</licenseName>
-					<extraExtensions>
-						<scala>java</scala>
-					</extraExtensions>
+					<licenseName>agpl_v3</licenseName>
 				</configuration>
+				<executions>
+					<execution>
+						<id>update-file-header</id>
+						<goals>
+							<goal>update-file-header</goal>
+						</goals>
+						<phase>process-sources</phase>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -113,8 +138,8 @@
 		</repository>
 		<repository>
 			<snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 			<id>odfi.snapshots</id>
 			<name>odfi-snapshot</name>
 			<url>http://www.opendesignflow.org/maven/repository/snapshots/</url>

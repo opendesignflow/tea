@@ -46,6 +46,7 @@
 				<artifactId>license-maven-plugin</artifactId>
 				<version>${license.plugin.version}</version>
 				<configuration>
+					<encoding>UTF8</encoding>
 					<licenseName>agpl_v3</licenseName>
 				</configuration>
 				<executions>

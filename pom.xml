@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.odfi</groupId>
 		<artifactId>superpom-scala</artifactId>
-		<version>2.12.2.r14</version>
+		<version>2.12.2.r17</version>
 	</parent>
 
 
@@ -22,12 +22,12 @@
 		</license>
 	</licenses>
 
-	<contributors>
-		<contributor>
+	<developers>
+		<developer>
 			<name>Richard Leys</name>
 			<email>leys.richard@gmail.com</email>
-		</contributor>
-	</contributors>
+		</developer>
+	</developers>
 
 	<scm>
 		<connection>scm:git:https://github.com/opendesignflow/tea.git</connection>

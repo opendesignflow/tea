@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -268,6 +270,10 @@ public class TeaIOUtils {
 		return res;
 	}
 
+	public static String readFileAsString(File file) throws FileNotFoundException {
+		return new String(TeaIOUtils.swallow(new FileInputStream(file)));
+	}
+	
 	/**
 	 * Writes the provided content string complete to target file using file Writer
 	 * @param file

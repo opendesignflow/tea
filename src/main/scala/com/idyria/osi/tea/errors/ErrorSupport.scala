@@ -28,6 +28,43 @@ trait ErrorSupport extends TeaPredef {
 
   var errors = Stack[Throwable]()
 
+  // Checking
+  //-------------
+  
+  /**
+   * Implementors should use immediate check to report non time consuming errors
+   * Other than Immediate Errors are kept back
+   * 
+   * Don't forget to call super.checkImmediateErrors in implementation
+   */
+  def checkImmediateErrors = {
+    resetErrorsOfType[TImmediateError]
+    
+  }
+  
+  def addImmediateError(err:TImmediateError) : TImmediateError = {
+    addError(err)
+    err
+  }
+  
+  def addImmediateError(err:Throwable) : TImmediateError = {
+    val e = new TImmediateError(err)
+    addError(e)
+   e
+  }
+  
+  def addImmediateError(err:String) : TImmediateError = {
+    val e = new TImmediateError(err)
+    addError(e)
+   e
+  }
+  def addImmediateError(err:String,parent:Throwable) : TImmediateError = {
+    val e = new TImmediateError(err,parent)
+    addError(e)
+   e
+  }
+  
+  
   // Error Add/Remove
   //-----------
   def addError(e: Throwable) = this.errors.contains(e) match {
@@ -50,6 +87,12 @@ trait ErrorSupport extends TeaPredef {
   }
 
   def getLastError = this.errors.headOption
+  
+  def getLastErrorOfType[ET <: Throwable](implicit tag : ClassTag[ET]) = {
+    this.errors.collectFirst {
+      case err if (tag.runtimeClass.isInstance(err))=>err.asInstanceOf[ET]
+    }
+  }
   
   def getErrorsOfType[ET <: Throwable](implicit tag : ClassTag[ET]) = {
     

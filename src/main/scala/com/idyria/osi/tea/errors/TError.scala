@@ -33,3 +33,9 @@ class TError( message:String,cause : Throwable) extends Throwable(message,cause)
   var column: Option[Int] = None
 
 }
+
+
+class TImmediateError(message:String,cause : Throwable) extends TError(message,cause) {
+   def this(message:String) = this(message,null)
+  def this(e:Throwable) = this(e.getLocalizedMessage,e)
+}

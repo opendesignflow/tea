@@ -67,4 +67,14 @@ trait ThreadLanguage {
     th
   }
   
+  def createDaemonThread (cl: => Any) : Thread = {
+    var th = new Thread(new Runnable {
+      def run() = {
+        cl
+      }
+    })
+    th.setDaemon(true)
+    th
+  }
+  
 }

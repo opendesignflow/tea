@@ -67,6 +67,23 @@ trait ErrorSupport extends TeaPredef {
   
   // Error Add/Remove
   //-----------
+  
+  def addError(err:TImmediateError) : TError = {
+    addError(err)
+    err
+  }
+  
+  def addError(err:String) : TError = {
+    val e = new TError(err)
+    addError(e)
+   e
+  }
+  def addError(err:String,parent:Throwable) : TError = {
+    val e = new TError(err,parent)
+    addError(e)
+   e
+  }
+  
   def addError(e: Throwable) = this.errors.contains(e) match {
     case true => 
     case false => 

@@ -103,6 +103,11 @@ trait ErrorSupport extends TeaPredef {
     case _ => true
   }
 
+  def hasImmediateErrors = this.errors.find {
+    case e : TImmediateError => true
+    case other => false
+  }.isDefined
+  
   def getLastError = this.errors.headOption
   
   def getLastErrorOfType[ET <: Throwable](implicit tag : ClassTag[ET]) = {
@@ -118,6 +123,8 @@ trait ErrorSupport extends TeaPredef {
     }.toList
     
   }
+  
+  def getImmediateErrors = getErrorsOfType[TImmediateError]
 
   // Comsume etc..
   //------------------

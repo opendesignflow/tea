@@ -73,7 +73,7 @@ trait TeaPredef {
     }
   }
   
-  def withEmpty[A](lst:Iterable[A])(cl: PartialFunction[Option[Iterable[A]],Unit]) = lst.size match {
+  def withEmpty[A,RT](lst:Iterable[A])(cl: PartialFunction[Option[Iterable[A]],RT]) = lst.size match {
     case 0 => cl(None)
     case other => cl(Some(lst))
   }

@@ -2,12 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>tea</artifactId>
-	<version>3.3.0-SNAPSHOT</version>
+	<version>3.3.1-SNAPSHOT</version>
 	<name>Tea Scala Utils Library</name>
 	<parent>
 		<groupId>org.odfi</groupId>
 		<artifactId>superpom-scala</artifactId>
-		<version>2.12.2.r17</version>
+		<version>2.12.5.r3</version>
 	</parent>
 
 

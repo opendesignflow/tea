@@ -51,37 +51,38 @@ public class TeaIOUtils {
 	 * Buffer size used in I/O Operations
 	 */
 	public static Integer BUFF_SIZE = 2048;
-	
+
 	/**
 	 * 
 	 */
 	public TeaIOUtils() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	public static String waitForNewLineConsoleInput() {
 		// get scanner
 		Scanner scan = new Scanner(System.in);
 		return scan.nextLine();
-		
+
 	}
-	
+
 	public static String waitForNewCharacterConsoleInput() {
 		// get scanner
 		Scanner scan = new Scanner(System.in);
 		return scan.next();
-		
+
 	}
-	
-	
+
 	/**
 	 * Returns a byte array containing the totality of the InputStream.
-	 * @param is The available size should return the complete size of the stream
+	 * 
+	 * @param is
+	 *            The available size should return the complete size of the
+	 *            stream
 	 * @return null if stream is not readable
 	 */
 	public static byte[] swallow(InputStream is) {
-		
-		
+
 		try {
 			// Create
 			byte[] res = new byte[is.available()];
@@ -90,32 +91,33 @@ public class TeaIOUtils {
 			int sizeRead = 0;
 			int position = 0;
 			// Swallow
-			while ( (sizeRead = is.read(buff))!=-1  ) {
-				
+			while ((sizeRead = is.read(buff)) != -1) {
+
 				// Copy
 				System.arraycopy(buff, 0, res, position, sizeRead);
-				position+=sizeRead;
-				
+				position += sizeRead;
+
 			}
 			return res;
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
-		
-		
+
 	}
-	
+
 	/**
 	 * Returns a byte array containing the totality of the InputStream.
-	 * @param is The available size should return the complete size of the stream
+	 * 
+	 * @param is
+	 *            The available size should return the complete size of the
+	 *            stream
 	 * @return null if stream is not readable
 	 */
-	public static byte[] swallowBytes(InputStream is,int count) {
-		
-		
+	public static byte[] swallowBytes(InputStream is, int count) {
+
 		try {
 			// Create
 			byte[] res = new byte[count];
@@ -124,32 +126,33 @@ public class TeaIOUtils {
 			int sizeRead = 0;
 			int position = 0;
 			// Swallow
-			while ( (sizeRead = is.read(buff))!=-1  ) {
-				
+			while ((sizeRead = is.read(buff)) != -1) {
+
 				// Copy
 				System.arraycopy(buff, 0, res, position, sizeRead);
-				position+=sizeRead;
-				
+				position += sizeRead;
+
 			}
 			return res;
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
-		
-		
+
 	}
-	
+
 	/**
-	 * Returns a byte array containing the totality of the InputStream.
-	 * Does not rely on available
-	 * @param is The Output byte array will be extended
+	 * Returns a byte array containing the totality of the InputStream. Does not
+	 * rely on available
+	 * 
+	 * @param is
+	 *            The Output byte array will be extended
 	 * @return if stream is not readable
 	 */
 	public static byte[] swallowStream(InputStream is) {
-		
+
 		try {
 			// Create
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -158,34 +161,32 @@ public class TeaIOUtils {
 			int sizeRead = 0;
 
 			// Swallow
-			while ( (sizeRead = is.read(buff))!=-1  ) {
-				
+			while ((sizeRead = is.read(buff)) != -1) {
+
 				// Copy
-				os.write(buff,0,sizeRead);
-				
-				
+				os.write(buff, 0, sizeRead);
+
 			}
 			return os.toByteArray();
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
-		
+
 	}
-	
-	
-	
+
 	/**
-	 * Generates a temporary directory that will be deleted by the end of the JVM.
-	 * The directory has a random name
+	 * Generates a temporary directory that will be deleted by the end of the
+	 * JVM. The directory has a random name
+	 * 
 	 * @return
 	 */
 	public static File getRandomTempDir() {
-		
+
 		// Get random
-		//--------------
+		// --------------
 		long randlong = Calendar.getInstance().getTimeInMillis();
 		String randstring = null;
 		byte[] result = null;
@@ -197,133 +198,142 @@ public class TeaIOUtils {
 
 			// Digest and return
 			result = digest.digest();
-			
+
 			randstring = Base64.encodeBytes(result);
 
-			
-			
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// Create file
 		String tempdir = System.getProperty("java.io.tmpdir");
-		File tempdirFile = new File(tempdir+File.separatorChar+randstring);
+		File tempdirFile = new File(tempdir + File.separatorChar + randstring);
 		tempdirFile.mkdir();
 		tempdirFile.deleteOnExit();
-		
-		
+
 		return tempdirFile;
-		
-		
+
 	}
-	
+
 	/**
-	 * Extract the specified resource to temp directory.
-	 * Uses Thread.currentThread().getContextClassLoader() to extract resourcePath
+	 * Extract the specified resource to temp directory. Uses
+	 * Thread.currentThread().getContextClassLoader() to extract resourcePath
 	 * WARNING: Goes through RAM first. Don't use on big datas
+	 * 
 	 * @param applicationPath
 	 * @return null if no resource path or not succeeded
 	 */
 	public static File extractToTemp(String resourcePath) {
-		
+
 		// In/out
 		File res = null;
 		File temp = null;
 		File resourcePathFile = new File(resourcePath);
-		
+
 		// Find IO Dir
 		String tempdir = System.getProperty("java.io.tmpdir");
-		if (tempdir!=null) {
+		if (tempdir != null) {
 			temp = new File(tempdir);
 			if (!temp.isDirectory())
-				temp=null;
+				temp = null;
 		}
-		if (tempdir==null)
+		if (tempdir == null)
 			return null;
 		// Load resource
 		URL resource = Thread.currentThread().getContextClassLoader().getResource(resourcePath);
-		if (resource!=null) {
+		if (resource != null) {
 			// Found, open stream
 			try {
 				InputStream is = resource.openStream();
-				
+
 				// Swallow
 				byte[] inBytes = TeaIOUtils.swallow(is);
-				
+
 				// Create output file
-				res = new File(temp.getAbsolutePath()+File.separator+resourcePathFile.getName());
+				res = new File(temp.getAbsolutePath() + File.separator + resourcePathFile.getName());
 				res.deleteOnExit();
-				
+
 				// Write on it
 				FileOutputStream os = new FileOutputStream(res);
 				os.write(inBytes);
 				os.close();
-				
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
+
 		return res;
 	}
 
 	public static String readFileAsString(File file) throws FileNotFoundException {
 		return new String(TeaIOUtils.swallow(new FileInputStream(file)));
 	}
-	
+
 	/**
-	 * Writes the provided content string complete to target file using file Writer
+	 * Writes the provided content string complete to target file using file
+	 * Writer
+	 * 
 	 * @param file
 	 * @param content
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public static File writeToFile(File file , String content) throws IOException {
+	public static File writeToFile(File file, String content) throws IOException {
 		return TeaIOUtils.writeToFile(file, content, true);
 	}
-	
-	public static File  writeToFile(File file , String content,boolean overwrite) throws IOException {
-		
-		//-- If exists and nor overwrite, don'T do
+
+	public static File writeToFile(File file, String content, boolean overwrite) throws IOException {
+
+		// -- If exists and nor overwrite, don'T do
 		if (file.exists() && !overwrite) {
-			
+
 		} else {
-		
-			//-- Write
+
+			// -- Write
 			FileWriter out = new FileWriter(file);
 			out.write(content);
 			out.close();
-		
+
 		}
 		return file;
 	}
-	
+
 	/**
 	 * Writes the provided input stream bufferto target file using nio mapping
+	 * 
 	 * @param file
 	 * @param content
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public static File writeToFile(File file , InputStream content) throws IOException {
+	public static File writeToFile(File file, InputStream content) throws IOException {
 
-		
-		//-- Use Java 1.7 Nio
+		// -- Use Java 1.7 Nio
 		Files.copy(content, Paths.get(file.toURI()), StandardCopyOption.REPLACE_EXISTING);
-		
+
 		/*
-		//-- Source Channel
-		ReadableByteChannel contentChannel = Channels.newChannel(content);
-		
-		//-- Write output
-		FileOutputStream fos = new FileOutputStream(file);
-		fos.getChannel().write(contentChannel.)
-		*/
-		
+		 * //-- Source Channel ReadableByteChannel contentChannel =
+		 * Channels.newChannel(content);
+		 * 
+		 * //-- Write output FileOutputStream fos = new FileOutputStream(file);
+		 * fos.getChannel().write(contentChannel.)
+		 */
+
 		return file;
+
+	}
+
+	public static Boolean isValidFolder(File file) {
+		
+			return (file.isDirectory() && file.exists());
 		
 	}
 	
+	public static Boolean isValidFile(File file) {
+		
+		return (file.isFile() && file.exists());
 	
+}
+
 }

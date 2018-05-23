@@ -38,7 +38,7 @@ import java.io.FileInputStream
  */
 class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p) {
 
-  var name = "ClassDomain"
+  var domainName = "ClassDomain"
   var tainted = false
   def isTainted = tainted
 
@@ -89,7 +89,7 @@ class ClassDomain(arr: Array[URL], p: ClassLoader) extends URLClassLoader(arr, p
 
 
   override def toString = {
-    s"ClassDomain $name (tainted=$tainted) :" + hashCode()
+    s"ClassDomain domainName (tainted=$tainted) :" + hashCode()
   }
 
   // Dep CD

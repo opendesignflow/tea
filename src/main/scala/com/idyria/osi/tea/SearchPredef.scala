@@ -22,13 +22,13 @@ package com.idyria.osi.tea
 
 trait SearchPredef {
   
-  def findByException[T](cls:Iterable[ Unit =>T ]) :Option[T] = {
+  def findByException[T](cls:Iterable[ () =>T ]) :Option[T] = {
     
     var res : Option[T] = None
     cls.find {
       cl => 
         try {
-          res = Some(cl())
+          res = Some( cl() )
           true
         } catch {
           case e : Throwable => 

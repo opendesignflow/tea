@@ -29,8 +29,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * @author rtek
@@ -44,18 +47,18 @@ public class HashUtils {
 	public HashUtils() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	/**
 	 * Calculate Hash over a file
 	 * 
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public static byte[] hashFile(File file,String alg) throws FileNotFoundException {
+	public static byte[] hashFile(File file, String alg) throws FileNotFoundException {
 
 		// Check file existence
 		if (file == null || !file.exists())
-			throw new FileNotFoundException("File Not Found: "+file.getAbsolutePath());
+			throw new FileNotFoundException("File Not Found: " + file.getAbsolutePath());
 
 		byte[] result = null;
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -91,7 +94,7 @@ public class HashUtils {
 
 	}
 
-	public static byte[] hashBytes(byte[] bytes,String algo) {
+	public static byte[] hashBytes(byte[] bytes, String algo) {
 
 		byte[] result = null;
 		try {
@@ -110,17 +113,31 @@ public class HashUtils {
 
 		return result;
 	}
-	
-	public static String hashBytesAsBase64(byte[] bytes,String alg) {
-		return Base64.encodeBytes(HashUtils.hashBytes(bytes,alg));
-	}
-	
-	
 
-	public static String hashFileAsBase64(File file,String alg) {
+	public static String hashBytesAsBase64(byte[] bytes, String alg) {
+		return Base64.encodeBytes(HashUtils.hashBytes(bytes, alg));
+	}
+
+	/**
+	 * Returns Upper case concatenated string of hex values
+	 * @param bytes
+	 * @param alg
+	 * @return
+	 */
+	public static String hashBytesAsHex(byte[] bytes,String alg) {
+		IntStream s = Arrays.stream(ByteBuffer.wrap(HashUtils.hashBytes(bytes,alg)).asIntBuffer().array());
+		return s.mapToObj(i -> Integer.toHexString(i)).toString();
+	
+		/*Arrays.stream[byte](HashUtils.hashBytes(bytes,alg)).map {
+			b -> 
+			
+		}*/
+	}
+
+	public static String hashFileAsBase64(File file, String alg) {
 		byte[] bytes;
 		try {
-			bytes = HashUtils.hashFile(file,alg);
+			bytes = HashUtils.hashFile(file, alg);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -23,6 +23,7 @@ package com.idyria.osi.tea.errors
 import scala.collection.mutable.Stack
 import scala.reflect.ClassTag
 import com.idyria.osi.tea.TeaPredef
+import java.io.PrintStream
 
 trait ErrorSupport extends TeaPredef {
 
@@ -67,6 +68,10 @@ trait ErrorSupport extends TeaPredef {
   
   // Error Add/Remove
   //-----------
+  
+  def checkErrors = {
+       resetErrorsOfType[TError]
+  }
   
   def addError(err:TImmediateError) : TError = {
     addError(err)
@@ -187,6 +192,15 @@ trait ErrorSupport extends TeaPredef {
       case e: Throwable =>
         None
     }
+  }
+  
+  // Pretty Printing
+  //------------------
+  def printErrorList(out:PrintStream) = {
+      this.errors.foreach {
+          err => 
+              out.println("Error "+err.getClass.getCanonicalName+": "+err.getLocalizedMessage)
+      }
   }
 
 }

@@ -50,6 +50,11 @@ trait ListeningSupport {
   // Deregister
   //---------------
   
+  def deregisterAllListenersFor(point:String) = {
+      listeningPoints = listeningPoints - "data.update"
+      listeningPointsWith = listeningPointsWith - "data.update"
+      
+  }
   /**
    * Deregister a closure from where it could be
    */

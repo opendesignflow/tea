@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -125,8 +126,11 @@ public class HashUtils {
 	 * @return
 	 */
 	public static String hashBytesAsHex(byte[] bytes,String alg) {
-		IntStream s = Arrays.stream(ByteBuffer.wrap(HashUtils.hashBytes(bytes,alg)).asIntBuffer().array());
-		return s.mapToObj(i -> Integer.toHexString(i)).toString();
+		ByteBuffer b = ByteBuffer.wrap(HashUtils.hashBytes(bytes,alg));
+		IntStream s = IntStream.generate(b::get).limit(b.remaining());
+		
+		
+		return s.mapToObj(i -> Integer.toHexString(i).substring(0,-2)).collect( Collectors.joining( "" ) );
 	
 		/*Arrays.stream[byte](HashUtils.hashBytes(bytes,alg)).map {
 			b -> 

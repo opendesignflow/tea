@@ -300,7 +300,7 @@ final case class ESome[+A](value: A) extends ErrorOption[A] {
   def get = value
   
   def apply(t:Throwable) = {
-    var e = new ESome()
+    var e = new ESome
     e.addError(new TError(t))
     e
   }

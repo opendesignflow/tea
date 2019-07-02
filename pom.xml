@@ -1,159 +1,158 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>tea</artifactId>
-	<version>3.3.1-SNAPSHOT</version>
-	<name>Tea Scala Utils Library</name>
-	<parent>
-		<groupId>org.odfi</groupId>
-		<artifactId>superpom-scala</artifactId>
-		<version>2.12.8.r2</version> 
-	</parent>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>tea</artifactId>
+    <version>3.3.1-SNAPSHOT</version>
+    <name>Tea Scala Utils Library</name>
+    <parent>
+        <groupId>org.odfi</groupId>
+        <artifactId>superpom-scala</artifactId>
+        <version>2.12.8.r2</version>
+    </parent>
 
 
-	<!-- Project INfos -->
-	<!-- ### -->
-	<inceptionYear>2006</inceptionYear>
+    <!-- Project INfos -->
+    <!-- ### -->
+    <inceptionYear>2006</inceptionYear>
 
-	<licenses>
-		<license>
-			<name>GNU Affero General Public License (AGPL) version 3.0</name>
-			<url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License (AGPL) version 3.0</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
+        </license>
+    </licenses>
 
-	<developers>
-		<developer>
-			<name>Richard Leys</name>
-			<email>leys.richard@gmail.com</email>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <name>Richard Leys</name>
+            <email>leys.richard@gmail.com</email>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>scm:git:https://github.com/opendesignflow/tea.git</connection>
-		<developerConnection>scm:git:git@github.com:opendesignflow/tea.git</developerConnection>
-		<url>https://github.com/richnou/tea</url>
-	</scm>
+    <scm>
+        <connection>scm:git:https://github.com/opendesignflow/tea.git</connection>
+        <developerConnection>scm:git:git@github.com:opendesignflow/tea.git</developerConnection>
+        <url>https://github.com/richnou/tea</url>
+    </scm>
 
 
-	<!-- Plugins -->
-	<!-- ############## -->
-	<build>
-		<plugins>
-			<!-- Licenses -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<version>${license.plugin.version}</version>
-				<configuration>
-					<encoding>UTF8</encoding>
-					<licenseName>agpl_v3</licenseName>
-				</configuration>
-				<executions>
-					<execution>
-						<id>update-file-header</id>
-						<goals>
-							<goal>update-file-header</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+    <!-- Plugins -->
+    <!-- ############## -->
+    <build>
+        <plugins>
+            <!-- Licenses -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license.plugin.version}</version>
+                <configuration>
+                    <encoding>UTF8</encoding>
+                    <licenseName>agpl_v3</licenseName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>update-file-header</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.9.1</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>src/main/java</source>
-							</sources>
-						</configuration>
-					</execution>
-					<execution>
-						<phase>pre-site</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>src/main/java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-		</plugins>
-	</build>
 
-	<!-- Repositories to find ODFI packages -->
-	<!-- ############################################## -->
-	<pluginRepositories>
-		<pluginRepository>
-			<id>sonatype</id>
-			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
-		</pluginRepository>
-		<pluginRepository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>odfi.central</id>
-			<name>plugins-release</name>
-			<url>http://www.opendesignflow.org/maven/repository/internal/</url>
-		</pluginRepository>
-		<pluginRepository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>odfi.snapshots</id>
-			<name>plugins-snapshot</name>
-			<url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
-		</pluginRepository>
-	</pluginRepositories>
-	<repositories>
-		<repository>
-			<id>sonatype</id>
-			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
-		</repository>
-		<repository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>odfi.central</id>
-			<name>odfi-release</name>
-			<url>http://www.opendesignflow.org/maven/repository/internal/</url>
-		</repository>
-		<repository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>odfi.snapshots</id>
-			<name>odfi-snapshot</name>
-			<url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
-		</repository>
-	</repositories>
+        </plugins>
+    </build>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-reflect</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-compiler</artifactId>
-			<version>${scala.version}</version>
-		</dependency>
+    <!-- Repositories to find ODFI packages -->
+    <!-- ############################################## -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>sonatype</id>
+            <name>Sonatype OSS Snapshots Repository</name>
+            <url>http://oss.sonatype.org/content/groups/public</url>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>odfi.central</id>
+            <name>plugins-release</name>
+            <url>http://www.opendesignflow.org/maven/repository/internal/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>odfi.snapshots</id>
+            <name>plugins-snapshot</name>
+            <url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <repositories>
+        <repository>
+            <id>sonatype</id>
+            <name>Sonatype OSS Snapshots Repository</name>
+            <url>http://oss.sonatype.org/content/groups/public</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>odfi.central</id>
+            <name>odfi-release</name>
+            <url>http://www.opendesignflow.org/maven/repository/internal/</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>odfi.snapshots</id>
+            <name>odfi-snapshot</name>
+            <url>http://www.opendesignflow.org/maven/repository/snapshots/</url>
+        </repository>
+    </repositories>
 
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

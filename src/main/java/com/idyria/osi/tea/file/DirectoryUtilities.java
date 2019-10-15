@@ -156,8 +156,12 @@ public class DirectoryUtilities {
 	public static final void CopyContent(File source,File destination) {
 		
 		// Check arguments
-		if (source==null || destination==null || !source.isDirectory() || !destination.isDirectory())
+		if (source==null || destination==null || !source.isDirectory()  )
 			throw new IllegalArgumentException();
+		
+		if (!destination.isDirectory()) {
+			destination.mkdirs();
+		}
 		
 		// Create initial cell
 		CopyingCell ccell  =  new CopyingCell(source,destination);

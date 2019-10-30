@@ -141,6 +141,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
   // Compiler Getter
   //-----------------------
 
+
   def getIMain = imain match {
     case Some(main) => main
     case None =>
@@ -150,7 +151,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
       // Create
       fork {
 
-        this.imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
+        this.imain = Some(new IMain(settings2, new PrintWriterReplReporter(new PrintWriter(interpreterOutput))) {
 
           override protected def parentClassLoader: ClassLoader = {
 

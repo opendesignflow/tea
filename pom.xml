@@ -1,13 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tea</artifactId>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
     <name>Tea Scala Utils Library</name>
     <parent>
         <groupId>org.odfi</groupId>
         <artifactId>superpom-scala</artifactId>
-        <version>2.12.8.r2</version>
+        <version>2.13.1.r1</version>
     </parent>
 
 
@@ -89,6 +90,43 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!--            <plugin>-->
+            <!--                <groupId>net.alchim31.maven</groupId>-->
+            <!--                <artifactId>scala-maven-plugin</artifactId>-->
+            <!--                <version>4.2.4</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <id>add-source</id>-->
+            <!--                        <phase>validate</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>add-source</goal>-->
+            <!--                        </goals>-->
+            <!--                        <configuration>-->
+            <!--                            <sourceDir>src/main/java</sourceDir>-->
+            <!--                        </configuration>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+
+            <!--                <configuration>-->
+
+            <!--                    <compilerPlugins>-->
+            <!--                        <compilerPlugin>-->
+            <!--                            <groupId>org.scalameta</groupId>-->
+            <!--                            <artifactId>semanticdb-scalac_${scala.version}</artifactId>-->
+            <!--                            <version>4.2.3</version>-->
+            <!--                        </compilerPlugin>-->
+            <!--                    </compilerPlugins>-->
+            <!--                    <args>-->
+            <!--                        <arg>-P:semanticdb:synthetics:on</arg>-->
+            <!--                        <arg>-P:semanticdb:failures:warning</arg>-->
+            <!--                        <arg>-P:semanticdb:sourceroot:${maven.multiModuleProjectDirectory}</arg>-->
+            <!--                        <arg>-Yrangepos</arg>-->
+            <!--                        <arg>-Xplugin-require:semanticdb</arg>-->
+            <!--                    </args>-->
+            <!--                </configuration>-->
+
+            <!--            </plugin>-->
 
 
         </plugins>

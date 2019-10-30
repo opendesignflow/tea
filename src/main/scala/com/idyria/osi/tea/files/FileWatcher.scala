@@ -1,97 +1,3 @@
-package com.idyria.osi.tea.files
-
-import com.idyria.osi.tea.thread.ThreadLanguage
-import com.idyria.osi.tea.logging.TLogSource
-import java.io.File
-import java.nio.file.FileSystems
-import java.nio.file.StandardWatchEventKinds
-import java.nio.file.StandardCopyOption
-import java.nio.file.WatchKey
-import java.nio.file.WatchEvent
-import java.nio.file.Files
-import java.nio.file.Path
-import scala.collection.JavaConversions._
-
-/**
- * @author zm4632
- */
-class FileWatcher extends ThreadLanguage with TLogSource {
-
-  var baseDirectories = Map[WatchKey, File]()
-  var changeListeners = Map[String, List[() => Any]]()
-  var directoryChangeListeners = Map[String, List[File => Any]]()
-
-  def start = {
-    logFine[FileWatcher](s"////////////// Startin watcher")
-    watcherThread.start()
-  }
-
-  def stop = {
-
-  }
-
-  def onDirectoryChange(f: File)(cl: File => Any) = {
-    f match {
-      case f if (!f.isDirectory()) => new RuntimeException("Cannot Watch Directory Change on File")
-      case d =>
-
-        // to path
-        var directoryPath = FileSystems.getDefault().getPath(d.getAbsolutePath)
-
-        // Register if necessary
-        this.baseDirectories.find { case (key, file) => file.getAbsolutePath == d.getAbsolutePath } match {
-          case Some(entry) =>
-          case None =>
-            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE)
-            this.baseDirectories = this.baseDirectories + (watchKey -> d.getAbsoluteFile)
-        }
-
-        // Save listener
-        var listeners = directoryChangeListeners.get(f.getAbsolutePath) match {
-          case Some(listeners) => listeners
-          case None => List()
-        }
-        listeners = listeners :+ cl
-        this.directoryChangeListeners = this.directoryChangeListeners.updated(f.getAbsolutePath, listeners)
-    }
-  }
-
-  def onFileChange(f: File)(cl: => Any) = {
-
-    f match {
-      case f if (f.isDirectory()) => new RuntimeException("Cannot Watch File Change on Directory")
-      case f =>
-
-        // to path
-        var sourcePath = FileSystems.getDefault().getPath(f.getAbsolutePath)
-        var directoryPath = FileSystems.getDefault().getPath(f.getParentFile.getAbsolutePath)
-
-        // Register if necessary
-        this.baseDirectories.find { case (key, file) => file.getAbsolutePath == f.getParentFile.getAbsolutePath } match {
-          case Some(entry) =>
-          case None =>
-            var watchKey = directoryPath.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY)
-            this.baseDirectories = this.baseDirectories + (watchKey -> f.getParentFile.getAbsoluteFile)
-        }
-
-        // Save listener
-        var listeners = changeListeners.get(f.getAbsolutePath) match {
-          case Some(listeners) => listeners
-          case None => List()
-        }
-        listeners = listeners :+ { () => cl }
-        this.changeListeners = this.changeListeners.updated(f.getAbsolutePath, listeners)
-
-        println(s"///////////// Recorded event for " + f.getAbsolutePath)
-      // 
-    }
-
-  }
-
-  // Watcher Thread
-  //--------------------
-  var watcher = FileSystems.getDefault().newWatchService();
-
 /*-
  * #%L
  * Tea Scala Utils Library
@@ -112,6 +18,114 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
+package com.idyria.osi.tea.files
+
+import com.idyria.osi.tea.thread.ThreadLanguage
+import com.idyria.osi.tea.logging.TLogSource
+import java.io.File
+import java.nio.file.FileSystems
+import java.nio.file.StandardWatchEventKinds
+import java.nio.file.StandardCopyOption
+import java.nio.file.WatchKey
+import java.nio.file.WatchEvent
+import java.nio.file.Files
+import java.nio.file.Path
+import scala.collection.JavaConverters._
+
+/**
+  * @author zm4632
+  */
+class FileWatcher extends ThreadLanguage with TLogSource {
+
+  var baseDirectories = Map[WatchKey, File]()
+  var changeListeners = Map[String, List[() => Any]]()
+  var directoryChangeListeners = Map[String, List[File => Any]]()
+
+  def start = {
+    logFine[FileWatcher](s"////////////// Startin watcher")
+    watcherThread.start()
+  }
+
+  def stop = {}
+
+  def onDirectoryChange(f: File)(cl: File => Any) = {
+    f match {
+      case f if (!f.isDirectory()) =>
+        new RuntimeException("Cannot Watch Directory Change on File")
+      case d =>
+        // to path
+        var directoryPath = FileSystems.getDefault().getPath(d.getAbsolutePath)
+
+        // Register if necessary
+        this.baseDirectories.find {
+          case (key, file) => file.getAbsolutePath == d.getAbsolutePath
+        } match {
+          case Some(entry) =>
+          case None =>
+            var watchKey = directoryPath.register(
+              watcher,
+              StandardWatchEventKinds.ENTRY_CREATE
+            )
+            this.baseDirectories = this.baseDirectories + (watchKey -> d.getAbsoluteFile)
+        }
+
+        // Save listener
+        var listeners = directoryChangeListeners.get(f.getAbsolutePath) match {
+          case Some(listeners) => listeners
+          case None            => List()
+        }
+        listeners = listeners :+ cl
+        this.directoryChangeListeners =
+          this.directoryChangeListeners.updated(f.getAbsolutePath, listeners)
+    }
+  }
+
+  def onFileChange(f: File)(cl: => Any) = {
+
+    f match {
+      case f if (f.isDirectory()) =>
+        new RuntimeException("Cannot Watch File Change on Directory")
+      case f =>
+        // to path
+        var sourcePath = FileSystems.getDefault().getPath(f.getAbsolutePath)
+        var directoryPath =
+          FileSystems.getDefault().getPath(f.getParentFile.getAbsolutePath)
+
+        // Register if necessary
+        this.baseDirectories.find {
+          case (key, file) =>
+            file.getAbsolutePath == f.getParentFile.getAbsolutePath
+        } match {
+          case Some(entry) =>
+          case None =>
+            var watchKey = directoryPath.register(
+              watcher,
+              StandardWatchEventKinds.ENTRY_MODIFY
+            )
+            this.baseDirectories = this.baseDirectories + (watchKey -> f.getParentFile.getAbsoluteFile)
+        }
+
+        // Save listener
+        var listeners = changeListeners.get(f.getAbsolutePath) match {
+          case Some(listeners) => listeners
+          case None            => List()
+        }
+        listeners = listeners :+ { () =>
+          cl
+        }
+        this.changeListeners =
+          this.changeListeners.updated(f.getAbsolutePath, listeners)
+
+        println(s"///////////// Recorded event for " + f.getAbsolutePath)
+      //
+    }
+
+  }
+
+  // Watcher Thread
+  //--------------------
+  var watcher = FileSystems.getDefault().newWatchService();
+
   var watcherThread = createThread {
 
     var stop = false
@@ -126,31 +140,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         }*/
 
         //println(s"///////////// Got Key ")
-        key.pollEvents().filter { ev => ev.kind() != StandardWatchEventKinds.OVERFLOW } foreach {
+        key.pollEvents().asScala.filter { ev =>
+          ev.kind() != StandardWatchEventKinds.OVERFLOW
+        } foreach {
 
           // Directory Add
           //----------------------
-          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_CREATE) =>
+          case be: WatchEvent[_]
+              if (be.kind() == StandardWatchEventKinds.ENTRY_CREATE) =>
             var e = be.asInstanceOf[WatchEvent[Path]]
-            
+
             // Get Path of directory
             var directoryFile = this.baseDirectories.get(key).get
 
             // Get Path of file
-            var fileAbsoluteFile = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile()
+            var fileAbsoluteFile = directoryFile
+              .toPath()
+              .resolve(e.context())
+              .toAbsolutePath()
+              .toFile()
             var filePath = fileAbsoluteFile.getAbsolutePath
-            
+
             // Get and run listeners
             directoryChangeListeners.get(directoryFile.getAbsolutePath) match {
-              case Some(dListeners) => 
-                dListeners.foreach {
-                  l =>
-                    // println(s"Running event")
-                    l(fileAbsoluteFile)
+              case Some(dListeners) =>
+                dListeners.foreach { l =>
+                  // println(s"Running event")
+                  l(fileAbsoluteFile)
                 }
-              case None => 
+              case None =>
             }
-            /*directoryChangeListeners.get(directoryFile) match {
+          /*directoryChangeListeners.get(directoryFile) match {
               case Some(listeners) =>
                 listeners.foreach {
                   l =>
@@ -162,33 +182,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
           // File Modify
           //----------------
-          case be: WatchEvent[_] if (be.kind() == StandardWatchEventKinds.ENTRY_MODIFY) =>
-
+          case be: WatchEvent[_]
+              if (be.kind() == StandardWatchEventKinds.ENTRY_MODIFY) =>
             var e = be.asInstanceOf[WatchEvent[Path]]
 
             // Get Path of directory
             var directoryFile = this.baseDirectories.get(key).get
 
             // Get Path of file
-            var filePath = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile().getAbsolutePath
+            var filePath = directoryFile
+              .toPath()
+              .resolve(e.context())
+              .toAbsolutePath()
+              .toFile()
+              .getAbsolutePath
             //var filePath = directoryFile.toPath().resolve(e.context()).toAbsolutePath().toFile().getAbsolutePath
 
-            //var filePath = 
+            //var filePath =
             //println(s"///////////// Got Modify event for "+filePath+ "// "+e.context().toAbsolutePath().toFile().getAbsolutePath+"//"+directoryFile.toPath())
 
             // Get and run listeners
             changeListeners.get(filePath) match {
               case Some(listeners) =>
-                listeners.foreach {
-                  l =>
-                    // println(s"Running event")
-                    l()
+                listeners.foreach { l =>
+                  // println(s"Running event")
+                  l()
                 }
               case None =>
             }
 
           case e =>
-
             println(s"///////////// Got Event ")
         }
 

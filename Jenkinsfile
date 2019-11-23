@@ -2,6 +2,10 @@
 node {
  
   properties([pipelineTriggers([[$class: 'GitHubPushTrigger']])])
+
+  jdk = tool name: 'adopt-jdk11'
+  env.JAVA_HOME = "${jdk}"
+
   def mvnHome = tool 'maven3'
 
   stage('Clean') {

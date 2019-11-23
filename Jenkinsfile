@@ -6,6 +6,7 @@ node {
 
   stage('Clean') {
     checkout scm
+    sh "${mvnHome}/bin/mvn -version"
     sh "${mvnHome}/bin/mvn -B clean"
   }
 

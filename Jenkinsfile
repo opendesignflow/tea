@@ -11,7 +11,7 @@ node {
   stage('Clean') {
     checkout scm
     sh "${mvnHome}/bin/mvn -version"
-    sh "${mvnHome}/bin/mvn -B clean"
+    sh "${mvnHome}/bin/mvn -B  -U clean"
   }
 
   stage('Build') {
@@ -19,7 +19,7 @@ node {
   }
 
   stage('Test') {
-    sh "${mvnHome}/bin/mvn -B -up  -Dmaven.test.failure.ignore test"
+    sh "${mvnHome}/bin/mvn -B -U -up  -Dmaven.test.failure.ignore test"
     junit '**/target/surefire-reports/TEST-*.xml'
   }
 

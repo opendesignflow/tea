@@ -19,7 +19,7 @@ node {
   }
 
   stage('Test') {
-    sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore test"
+    sh "${mvnHome}/bin/mvn -B -up  -Dmaven.test.failure.ignore test"
     junit '**/target/surefire-reports/TEST-*.xml'
   }
 

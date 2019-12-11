@@ -151,7 +151,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
       // Create
       fork {
 
-        this.imain = Some(new IMain(settings2, new PrintWriterReplReporter(new PrintWriter(interpreterOutput))) {
+        this.imain = Some(new IMain(settings2, new PrintWriterReplReporter(settings2,new PrintWriter(interpreterOutput))) {
 
           override protected def parentClassLoader: ClassLoader = {
 

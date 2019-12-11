@@ -22,10 +22,14 @@ package org.odfi.tea.compile
 
 import org.scalatest.FunSuite
 import java.io.File
+import java.lang.reflect.InvocationTargetException
+
 import org.odfi.tea.file.DirectoryUtilities
+
 import scala.reflect.io.AbstractFile
 import org.scalatest.BeforeAndAfter
 import java.net.URLClassLoader
+
 import org.scalatest.GivenWhenThen
 
 class CompileTest extends FunSuite with BeforeAndAfter with GivenWhenThen {
@@ -237,7 +241,7 @@ class CompileTest extends FunSuite with BeforeAndAfter with GivenWhenThen {
     //-- Instantiate without the dependency, should fail
     Given("The Dependency Jar is missing from the Classloader")
     Then("Instance should fail with No Class Def Found")
-    intercept[NoClassDefFoundError] {
+    intercept[InvocationTargetException] {
       var instance = cl.getDeclaredConstructor().newInstance()
     }
 

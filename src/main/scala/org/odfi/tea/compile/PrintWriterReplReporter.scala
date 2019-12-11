@@ -6,7 +6,7 @@ import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.{ReplReporter, ReplRequest}
 
-class PrintWriterReplReporter(val outImpl: PrintWriter)  extends ReplReporter {
+class PrintWriterReplReporter(var settings: Settings , val outImpl: PrintWriter)  extends ReplReporter {
   override def out: PrintWriter = outImpl
 
   override def printMessage(msg: String): Unit = outImpl.println(msg)
@@ -53,7 +53,7 @@ class PrintWriterReplReporter(val outImpl: PrintWriter)  extends ReplReporter {
 
  // override def currentRequest_=(req: ReplRequest): Unit = ???
 
-  var settings: Settings = _
+
 
   override def doReport(pos: Position, msg: String, severity: Severity): Unit =  {
 

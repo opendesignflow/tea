@@ -15,7 +15,7 @@ node {
   }
 
   stage('Build') {
-    sh "${mvnHome}/bin/mvn -B  compile test-compile"
+    sh "${mvnHome}/bin/mvn -BU  compile test-compile"
   }
 
   stage('Test') {

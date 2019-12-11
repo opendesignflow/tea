@@ -10,11 +10,7 @@ node {
 
   mavenOptions="-B -U -up"
 
-  configFileProvider(
-        [configFile(fileId: '040c946b-486d-4799-97a0-e92a4892e372', variable: 'MAVEN_SETTINGS')]) {
-        //sh 'mvn -s $MAVEN_SETTINGS clean package'
-        mavenOptions="$mavenOptions -s $MAVEN_SETTINGS"
-    }
+  
 
     
 
@@ -36,7 +32,13 @@ node {
   if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master') {
 	  
 	  stage('Deploy') {
-		  sh "${mvnHome}/bin/mvn ${mavenOptions} -Dmaven.test.failure.ignore deploy"
+      configFileProvider(
+        [configFile(fileId: '040c946b-486d-4799-97a0-e92a4892e372', variable: 'MAVEN_SETTINGS')]) {
+          //sh 'mvn -s $MAVEN_SETTINGS clean package'
+          mavenOptions="$mavenOptions -s $MAVEN_SETTINGS"
+   
+		      sh "${mvnHome}/bin/mvn ${mavenOptions} -Dmaven.test.failure.ignore deploy"
+       }
 		  step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
 	  }
 

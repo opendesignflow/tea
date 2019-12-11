@@ -9,7 +9,7 @@ node {
   def mvnHome = tool 'maven3'
 
   configFileProvider(
-        [configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+        [configFile(fileId: '040c946b-486d-4799-97a0-e92a4892e372', variable: 'MAVEN_SETTINGS')]) {
         //sh 'mvn -s $MAVEN_SETTINGS clean package'
     }
 

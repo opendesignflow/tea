@@ -8,12 +8,15 @@ node {
 
   def mvnHome = tool 'maven3'
 
+  mavenOptions="-B -U -up"
+
   configFileProvider(
         [configFile(fileId: '040c946b-486d-4799-97a0-e92a4892e372', variable: 'MAVEN_SETTINGS')]) {
         //sh 'mvn -s $MAVEN_SETTINGS clean package'
+        mavenOptions="$mavenOptions -s $MAVEN_SETTINGS"
     }
 
-    mavenOptions="-s $MAVEN_SETTINGS -B -U -up"
+    
 
   stage('Clean') {
     checkout scm

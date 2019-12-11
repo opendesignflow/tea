@@ -8,25 +8,32 @@ node {
 
   def mvnHome = tool 'maven3'
 
+  configFileProvider(
+        [configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+        //sh 'mvn -s $MAVEN_SETTINGS clean package'
+    }
+
+    mavenOptions="-s $MAVEN_SETTINGS -B -U -up"
+
   stage('Clean') {
     checkout scm
     sh "${mvnHome}/bin/mvn -version"
-    sh "${mvnHome}/bin/mvn -B  -U clean"
+    sh "${mvnHome}/bin/mvn ${mavenOptions} clean"
   }
 
   stage('Build') {
-    sh "${mvnHome}/bin/mvn -B -U -up  compile test-compile"
+    sh "${mvnHome}/bin/mvn ${mavenOptions}  compile test-compile"
   }
 
   stage('Test') {
-    sh "${mvnHome}/bin/mvn -B -U -up  -Dmaven.test.failure.ignore test"
+    sh "${mvnHome}/bin/mvn ${mavenOptions}  -Dmaven.test.failure.ignore test"
     junit '**/target/surefire-reports/TEST-*.xml'
   }
 
   if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master') {
 	  
 	  stage('Deploy') {
-		  sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore deploy"
+		  sh "${mvnHome}/bin/mvn ${mavenOptions} -Dmaven.test.failure.ignore deploy"
 		  step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
 	  }
 
@@ -41,7 +48,7 @@ node {
   } else {
 	  
     stage('Package') {
-        sh "${mvnHome}/bin/mvn -B -Dmaven.test.failure.ignore package"
+        sh "${mvnHome}/bin/mvn ${mavenOptions} -Dmaven.test.failure.ignore package"
         step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
     }
 	

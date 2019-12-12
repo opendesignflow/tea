@@ -2,9 +2,12 @@ package org.odfi.tea.compile
 
 import java.io.PrintWriter
 
+import scala.reflect.internal.Reporter
+import scala.reflect.internal.Reporter.INFO
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.{ReplReporter, ReplRequest}
+
 
 class PrintWriterReplReporter(var settings: Settings , val outImpl: PrintWriter)  extends ReplReporter {
   override def out: PrintWriter = outImpl
@@ -56,6 +59,11 @@ class PrintWriterReplReporter(var settings: Settings , val outImpl: PrintWriter)
 
 
   override def doReport(pos: Position, msg: String, severity: Severity): Unit =  {
+     severity match {
+      case Reporter.INFO =>
+      case other =>
+        outImpl.println(severity.toString+": "+msg)
+    }
 
   }
 }

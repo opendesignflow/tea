@@ -56,6 +56,12 @@ class PrintWriterReplReporter(var settings: Settings , val outImpl: PrintWriter)
 
  // override def currentRequest_=(req: ReplRequest): Unit = ???
 
+    def nameToCode(s: String): String =  {
+        s
+    }
+  def typeToCode(s: String): String = {
+    s
+  }
 
 
   override def doReport(pos: Position, msg: String, severity: Severity): Unit =  {

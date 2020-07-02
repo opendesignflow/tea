@@ -136,7 +136,7 @@ trait ErrorSupport extends TeaPredef {
 
   def consumeErrors(cl: Throwable => Unit) = {
     while(!errors.isEmpty) {
-      cl(errors.pop)
+      cl(errors.pop())
     }
   }
   

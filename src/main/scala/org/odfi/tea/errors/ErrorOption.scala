@@ -143,7 +143,7 @@ sealed abstract class ErrorOption[+A] extends Product {
    * Returns false if the ErrorOption is $ENone, true otherwise.
    *  @note   Implemented here to avoid the implicit conversion to Iterable.
    */
-  final def nonEmpty = isDefined
+  final def nonEmpty : Boolean = isDefined
 
   /**
    * Necessary to keep $ErrorOption from being implicitly converted to
@@ -210,7 +210,7 @@ sealed abstract class ErrorOption[+A] extends Product {
    *  @see map
    *  @see flatMap
    */
-  @inline final def foreach[U](f: A => U) {
+  @inline final def foreach[U](f: A => U) : Unit = {
     if (!isEmpty) f(this.get)
   }
 
@@ -300,7 +300,7 @@ final case class ESome[+A](value: A) extends ErrorOption[A] {
   def get = value
   
   def apply(t:Throwable) = {
-    var e = new ESome
+    var e = new ESome(t)
     e.addError(new TError(t))
     e
   }

@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.odfi</groupId>
         <artifactId>superpom-scala</artifactId>
-        <version>2.13.1.r1</version>
+        <version>2.13.3.r1</version>
     </parent>
 
 
@@ -62,11 +62,11 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.9.1</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>add-source</id>
-                        <phase>generate-sources</phase>
+                        <phase>validate</phase>
                         <goals>
                             <goal>add-source</goal>
                         </goals>
@@ -89,29 +89,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-
-            <!--                <configuration>-->
-
-            <!--                    <compilerPlugins>-->
-            <!--                        <compilerPlugin>-->
-            <!--                            <groupId>org.scalameta</groupId>-->
-            <!--                            <artifactId>semanticdb-scalac_${scala.version}</artifactId>-->
-            <!--                            <version>4.2.3</version>-->
-            <!--                        </compilerPlugin>-->
-            <!--                    </compilerPlugins>-->
-            <!--                    <args>-->
-            <!--                        <arg>-P:semanticdb:synthetics:on</arg>-->
-            <!--                        <arg>-P:semanticdb:failures:warning</arg>-->
-            <!--                        <arg>-P:semanticdb:sourceroot:${maven.multiModuleProjectDirectory}</arg>-->
-            <!--                        <arg>-Yrangepos</arg>-->
-            <!--                        <arg>-Xplugin-require:semanticdb</arg>-->
-            <!--                    </args>-->
-            <!--                </configuration>-->
-
-            <!--            </plugin>-->
-
-
         </plugins>
     </build>
 

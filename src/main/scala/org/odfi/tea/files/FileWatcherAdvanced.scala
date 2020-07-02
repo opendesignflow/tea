@@ -9,7 +9,7 @@ import java.nio.file.StandardWatchEventKinds
 import java.nio.file.WatchEvent
 import java.nio.file.WatchKey
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.odfi.tea.logging.TLogSource
 import org.odfi.tea.thread.ThreadLanguage

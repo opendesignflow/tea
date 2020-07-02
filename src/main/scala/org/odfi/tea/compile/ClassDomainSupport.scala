@@ -203,7 +203,7 @@ trait ClassDomainSupport {
   def instanceOfClass[U <: Any](cl: Class[_]): U = {
 
     this.withClassLoaderFor(cl) {
-      cl.newInstance().asInstanceOf[U]
+      cl.getDeclaredConstructor().newInstance().asInstanceOf[U]
     }
 
   }

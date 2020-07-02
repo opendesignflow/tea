@@ -167,11 +167,12 @@ object TLog {
   }
 
   def setLevel(obj: Any, level: Level.Level) : Unit  = {
-    levels = levels + (obj.getClass().getCanonicalName() -> level)
+
+     levels = levels.concat(List((obj.getClass().getCanonicalName() -> level)))
   }
   
   def setLevel(cl: Class[_], level: Level.Level) : Unit  = {
-    levels = levels + (cl.getCanonicalName() -> level)
+    levels = levels.concat(List((cl.getCanonicalName() -> level)))
   }
   
   def enableFull[T](implicit tag : ClassTag[T]) = {

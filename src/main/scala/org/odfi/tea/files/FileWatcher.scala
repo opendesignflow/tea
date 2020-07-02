@@ -30,7 +30,7 @@ import java.nio.file.WatchKey
 import java.nio.file.WatchEvent
 import java.nio.file.Files
 import java.nio.file.Path
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
   * @author zm4632

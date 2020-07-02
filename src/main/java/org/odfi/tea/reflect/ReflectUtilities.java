@@ -235,11 +235,17 @@ public class ReflectUtilities {
 	 */
 	public  static <C> C instantiate(Class<C> target) {
 		try {
-			return target.newInstance();
+			return target.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -267,8 +273,8 @@ public class ReflectUtilities {
 				+ field.getName().substring(1);
 
 		
-			return target.getClass().getMethod(methodName, null).invoke(target,
-					null);
+			return target.getClass().getMethod(methodName, new Class<?>[]{}).invoke(target,
+					new Object[]{});
 		
 	}
 	
@@ -327,6 +333,7 @@ public class ReflectUtilities {
 	 * @param annotationClass
 	 * @return
 	 */
+     @SuppressWarnings("unchecked")
 	public static <T extends Annotation> T getAnnotation(Class<?> source,Class<T> annotationClass) {
 		
 		// result annotation

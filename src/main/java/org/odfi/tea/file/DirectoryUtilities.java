@@ -81,7 +81,7 @@ public class DirectoryUtilities {
 	
 	/**
 	 * deletes the provided directory
-	 * @param f
+	 * @param dir
 	 */
 	public static final void deleteDirectory(File dir) {
 		
@@ -107,7 +107,7 @@ public class DirectoryUtilities {
 	
 	/**
 	 * deletes the provided directory, but not itseld
-	 * @param f
+	 * @param dir
 	 */
 	public static final void deleteDirectoryContent(File dir) {
 		

@@ -25,7 +25,7 @@ trait TTreeNode[T <:TTreeNode[_]] {
   
   
   
-  def addChild(n:T) 
+  def addChild(n:T)  : Unit
   
   
 }

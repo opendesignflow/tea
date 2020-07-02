@@ -34,7 +34,7 @@ class PrintWriterReplReporter(var settings: Settings , val outImpl: PrintWriter)
     if (result.isLeft) {
       printMessage(result.left.toString)
     } else {
-      printMessage(result.right.toString)
+      printMessage(result.toString)
     }
   }
 

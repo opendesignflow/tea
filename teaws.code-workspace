@@ -1,0 +1,20 @@
+{
+  "folders": [
+	{
+		"path": "."
+	},
+	{
+		"path": "D:\\git\\richnou\\dev-tools"
+	}
+],
+  "settings": {
+    "metals.javaHome": "C:\\Program Files\\AdoptOpenJDK\\jdk-8.0.232.09-hotspot",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "files.exclude": {
+      "**/.classpath": true,
+      "**/.project": true,
+      "**/.settings": true,
+      "**/.factorypath": true
+    }
+  }
+}

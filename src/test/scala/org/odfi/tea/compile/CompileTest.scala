@@ -20,19 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.odfi.tea.compile
 
-import org.scalatest.FunSuite
 import java.io.File
 import java.lang.reflect.InvocationTargetException
-
 import org.odfi.tea.file.DirectoryUtilities
 
 import scala.reflect.io.AbstractFile
 import org.scalatest.BeforeAndAfter
+
 import java.net.URLClassLoader
-
 import org.scalatest.GivenWhenThen
+import org.scalatest.funsuite.AnyFunSuite
 
-class CompileTest extends FunSuite with BeforeAndAfter with GivenWhenThen {
+class CompileTest extends AnyFunSuite with BeforeAndAfter with GivenWhenThen {
 
   val sourceFolder = new File("src/test/resources/compile")
   val outputFolder = new File("target/tco")

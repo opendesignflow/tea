@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package org.odfi.tea
 
 import org.odfi.tea.logging.TLogSource
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 
 trait TestLogging extends TLogSource  {
@@ -32,7 +32,7 @@ trait TestLogging extends TLogSource  {
   
 }
 
-class LoggingTest extends FunSuite with TLogSource {
+class LoggingTest extends AnyFunSuite with TLogSource {
  
   
   test("Classtag resolving") {

@@ -21,11 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package org.odfi.tea
 
 import org.scalatest.GivenWhenThen
-import org.scalatest.FunSuite
 import org.scalatest.GivenWhenThen
 import org.odfi.tea.listeners.ListeningSupport
+import org.scalatest.funsuite.AnyFunSuite
 
-class ListeningPointsSuite extends FunSuite with GivenWhenThen {
+class ListeningPointsSuite extends AnyFunSuite with GivenWhenThen {
 
   test("Register Deregister") {
 

@@ -21,13 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package org.odfi.tea.compile
 
 import org.scalatest.GivenWhenThen
-import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
 import org.odfi.tea.file.DirectoryUtilities
+import org.scalatest.funsuite.AnyFunSuite
+
 import java.io.File
 import java.net.URLClassLoader
 
-class CompileClassDomainTest  extends FunSuite with GivenWhenThen with BeforeAndAfter  {
+class CompileClassDomainTest  extends AnyFunSuite with GivenWhenThen with BeforeAndAfter  {
   
   
   val sourceFolder = new File("src/test/resources/compile")

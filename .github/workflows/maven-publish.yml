@@ -22,9 +22,12 @@ jobs:
 
       - name: Build with Gradle
         run: chmod +x gradlew && ./gradlew build
+        env:
+          BRANCH_NAME: ${{ github.ref }}
 
       - name: Publish to GitHub Packages Apache Maven
         run: chmod +x gradlew && ./gradlew publish
         env:
+          BRANCH_NAME: ${{ github.ref }}
           USERNAME: ${{ github.username }}
           TOKEN: ${{ github.token }}

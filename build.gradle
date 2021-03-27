@@ -1,0 +1,124 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            name = 'Sonatype Nexus Snapshots'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+}
+
+plugins {
+    id 'scala'
+
+    // Publish
+    id 'maven-publish'
+    id "java-library"
+
+}
+
+// Versions
+//-----------------
+group = 'org.odfi'
+version = gradle.ext.has("version") ?  gradle.ext.version :  "dev"
+def scalaVersion = "2.13.5"
+
+// Sources
+//---------------
+sourceSets {
+    main {
+        scala {
+            srcDirs = ['src/main/scala', 'src/main/java']
+        }
+        java {
+            srcDirs = []
+        }
+    }
+}
+
+// Deps
+//-----------
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+dependencies {
+
+    api "org.scala-lang:scala-reflect:$scalaVersion"
+    api "org.scala-lang:scala-compiler:$scalaVersion"
+    api("org.scala-lang:scala-library:$scalaVersion")
+
+    testImplementation "org.scala-lang.modules:scala-xml_2.13:2.0.0-M3"
+    testImplementation 'org.scalatest:scalatest-funsuite_2.13:3.2.3'
+    testImplementation 'org.scalatest:scalatest-shouldmatchers_2.13:3.2.3'
+}
+
+
+repositories {
+
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = 'Sonatype Nexus Snapshots'
+        url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'ODFI Releases'
+        url = 'https://www.opendesignflow.org/maven/repository/internal/'
+    }
+    maven {
+        name = 'ODFI Snapshots'
+        url = 'https://www.opendesignflow.org/maven/repository/snapshots/'
+    }
+    google()
+    jcenter()
+}
+
+publishing {
+    publications {
+
+        /*publishToMavenLocal(MavenPublication) {
+
+        }*/
+        publishToMavenLocal(MavenPublication) {
+
+
+            artifactId "tea"
+            from components.java
+      
+            pom {
+                name = 'Tea Scala Utils Library'
+                description = 'A simple collection of old utility functions'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'richnou'
+                        name = 'Richnou'
+                        email = 'leys.richard@gmail.com'
+                    }
+                }
+
+            }
+        }
+
+    }
+    repositories {
+
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/opendesignflow/tea")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+
+    }
+}

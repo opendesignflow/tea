@@ -22,17 +22,17 @@ plugins {
 //-----------------
 group = 'org.odfi'
 version = gradle.ext.has("version") ?  gradle.ext.version :  "dev"
-def scalaVersion = "2.13.5"
+def scalaVersion = "2.13.6"
 
 // Sources
 //---------------
 sourceSets {
     main {
         scala {
-            srcDirs = ['src/main/scala', 'src/main/java']
+            srcDirs = ['src/main/scala' ]
         }
         java {
-            srcDirs = []
+            srcDirs = ['src/main/java']
         }
     }
 }
@@ -72,7 +72,6 @@ repositories {
         url = 'https://www.opendesignflow.org/maven/repository/snapshots/'
     }
     google()
-    jcenter()
 }
 
 publishing {

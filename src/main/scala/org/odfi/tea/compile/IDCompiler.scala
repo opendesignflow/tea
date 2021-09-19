@@ -20,49 +20,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.odfi.tea.compile
 
+import dotty.tools.dotc
+import dotty.tools.dotc.Driver
+
 import java.io.StringWriter
 import java.net.URL
-import scala.tools.nsc.GenericRunnerSettings
-import scala.tools.nsc.interpreter.IMain
 import java.io.PrintWriter
-import scala.reflect.internal.util.SourceFile
 import java.io.File
-import scala.reflect.io.AbstractFile
-import scala.reflect.internal.util.BatchSourceFile
 import org.odfi.tea.os.OSDetector
+
 import java.net.URLClassLoader
-import scala.tools.nsc.settings.MutableSettings
-import scala.tools.nsc.Settings
-import scala.tools.nsc.interpreter.Results.Result
 import org.odfi.tea.thread.ThreadLanguage
 
 class IDCompiler extends ClassDomainSupport with ThreadLanguage {
 
   // Compiler Base
   //---------------
+  val compiler = new Driver
+  val reporter = new CompilerReporter
+
+  var compilerBaseArguments = List("-usejavacp")
+  var compilerPlugins: List[(String, String)] = List()
+
+  /*
   var interpreterOutput = new StringWriter
   val settings2 = new Settings({
     error => println("******* Error Happened ***********")
   })
-  var imain: Option[IMain] = None
+  var imain: Option[IMain] = None*/
 
   //-- Create Classdomain for Compiler
-  var compilerClassDomain = new ClassDomain(Runtime.getRuntime.getClass.getClassLoader)
+  var compilerClassDomain = new ClassDomain(Thread.currentThread().getContextClassLoader)
 
   // Source/Output Pairs
   //---------------------------
-  var sourceOutputPairs = List[(File, File)]()
+  var compilerOutput: Option[File] = None
 
-  def addSourceOutputFolders(pair: (File, File)): Unit = {
+  def setCompilerOutput(f: File): Unit = {
 
-    this.sourceOutputPairs = this.sourceOutputPairs :+ (pair._1.getAbsoluteFile, pair._2.getAbsoluteFile)
-    //this.settings2.outputDirs.add(AbstractFile.getDirectory(pair._1), AbstractFile.getDirectory(pair._2))
+    this.compilerOutput = Some(f.getCanonicalFile)
+
+    // Recreate Class Domain for new output
+    this.compilerClassDomain = new ClassDomain(this.compilerClassDomain.getParent)
+    this.compilerClassDomain.addURL(this.compilerOutput.get.toURI.toURL)
     this.updateSettings
   }
 
   // Classpath
   //------------------
-  var bootclasspath = List[URL]()
+  var bootclasspath: List[URL] = List[URL]()
 
   def addClasspathURL(u: Array[URL]): Unit = {
     u.filter(candidateURL => this.bootclasspath.find { cu => cu.toExternalForm() == candidateURL.toExternalForm() } == None) match {
@@ -73,172 +79,102 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
     }
 
   }
+
   def addClasspathURL(u: URL*): Unit = {
     addClasspathURL(u.toArray)
     /*var filtered = u.filter( candidateURL => this.bootclasspath.find { cu => cu.toExternalForm()==candidateURL.toExternalForm() }==None)
     bootclasspath = filtered.toList ::: bootclasspath*/
 
   }
-  
-  def setParentClassLoader(cl:ClassLoader) = {
+
+  def setParentClassLoader(cl: ClassLoader) = {
     this.compilerClassDomain = new ClassDomain(cl)
     updateSettings
   }
 
   //--- Scala Compiler and library go to boot classpath
   try {
-    val compilerPath = java.lang.Class.forName("scala.tools.nsc.Interpreter").getProtectionDomain.getCodeSource.getLocation
+    val compilerPath = java.lang.Class.forName("dotty.tools.dotc.Driver").getProtectionDomain.getCodeSource.getLocation
     val libPath = java.lang.Class.forName("scala.Some").getProtectionDomain.getCodeSource.getLocation
     addClasspathURL(compilerPath, libPath)
   } catch {
     case e: Throwable =>
+      e.printStackTrace()
   }
-
-  //-- Add stadnard classloader classes
-  /*List(getClass.getClassLoader).foreach {
-    case cl: URLClassLoader =>
-      //-- Gather URLS
-      addClasspathURL(cl.getURLs())
-      cl.getURLs().foreach {
-        url =>
-        //println(s"**ECompiler adding: ${url.toExternalForm()}")
-        //bootclasspath = url :: bootclasspath
-
-      }
-    case _ =>
-  }*/
 
   /**
    * Update Settings values
    */
   def updateSettings = {
 
-    //println(s"Updating Settings")
-    // settings2.nc.value = true
-    settings2.usejavacp.value = true
-    settings2.defines.value = List("-Xexperimental")
-    if (OSDetector.getOS == OSDetector.OS.LINUX) {
-
-      settings2.classpath.value = bootclasspath mkString java.io.File.pathSeparator
-      settings2.bootclasspath.value = bootclasspath mkString java.io.File.pathSeparator
-
-    } else {
-
-      settings2.classpath.value = bootclasspath.map(u => u.getPath.replaceFirst("/", "")) mkString java.io.File.pathSeparator
-      settings2.bootclasspath.value = bootclasspath.map(u => u.getPath.replaceFirst("/", "")) mkString java.io.File.pathSeparator
-
-    }
-
     bootclasspath.foreach {
       u =>
         compilerClassDomain.addURL(u)
     }
-
-    this.imain
 
   }
 
   // Compiler Getter
   //-----------------------
 
+  def buildBaseCompilerArguments() = {
 
-  def getIMain = imain match {
-    case Some(main) => main
-    case None =>
+    assert(this.compilerOutput.isDefined, {
+      "Cannot compile if no compiler output is defined"
+    })
 
-      updateSettings
-
-      // Create
-      fork {
-
-        this.imain = Some(new IMain(settings2, new PrintWriterReplReporter(settings2,new PrintWriter(interpreterOutput))) {
-
-          override protected def parentClassLoader: ClassLoader = {
-
-            /*parentLoader match {
-        case null => super.parentClassLoader
-        case _ => parentLoader
-      }*/
-            //println(s"Returning current thread CL as aprent CL")
-            //Thread.currentThread().getContextClassLoader
-            compilerClassDomain
-          }
-
-          def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
-            compileSourcesKeepingRun(sources: _*)._1
-
-          //-- Init Main here before output dirs may be overriden and it won't work
-          //println("Recreating! Recreatin!")
-          this.interpret("var init = true")
-
-          //-- Update output dirs
-          //-- Do this here, otherwise Main creation overrides this setting
-          sourceOutputPairs.foreach {
-            case (source, output) =>
-
-              source.mkdirs()
-              output.mkdirs()
-              // println(s"Setting Outputs: " + AbstractFile.getDirectory(source))
-
-              //settings2.outputDirs.add(AbstractFile.getDirectory(source), AbstractFile.getDirectory(output))
-              settings2.outputDirs.add(source.getAbsolutePath, output.getAbsolutePath)
-            //settings2.outputDirs.setSingleOutput(AbstractFile.getDirectory(output))
-          }
-          //println(s"CL: "+Thread.currentThread().getContextClassLoader)
-          //
-          //updateSettings
-
-        })
-      }.join()
-
-      /*imain = Some(new IMain(settings2, new PrintWriter(interpreterOutput)) {
-
-        override protected def parentClassLoader: ClassLoader = {
-
-          /*parentLoader match {
-        case null => super.parentClassLoader
-        case _ => parentLoader
-      }*/
-          println(s"Returning current thread CL as aprent CL")
-          Thread.currentThread().getContextClassLoader
-
-        }
-
-        def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
-          compileSourcesKeepingRun(sources: _*)._1
-      })*/
-      imain.get
+    this.compilerBaseArguments :::
+      List("-bootclasspath",this.bootclasspath.map(_.getFile.stripPrefix("/")).mkString(File.pathSeparator))  :::
+      this.compilerPlugins.map(p => s"-P:${p._1}:${p._2}") :::
+      List("-d", this.compilerOutput.get.getCanonicalPath)
 
   }
+
+
 
   // Copmilation Interface
   //-------------------
 
-  def compileString(str:String) = {
-    
-     // Reset output
-    interpreterOutput.getBuffer().setLength(0)
-    
-    try {
-      getIMain.compileString(str)  match {
-        case false =>
+  /**
+   * Just compiles string
+   *
+   * @param str
+   * @return
+   */
+  def compileString(str: String) = {
 
-          // Prepare error
-          Some(new FileCompileError( interpreterOutput.toString().trim))
+    throw new IllegalAccessError("Deprecated")
 
-        //throw new RuntimeException(s"Could not compile content: ${interpreterOutput.toString()}")
-        case _ => None
-      }
-    } finally {
-
-      // Reset output
-     //interpreterOutput.getBuffer().setLength(0)
-
-    }
-    
-    
   }
-  
+
+  /**
+   * Compile a file and return informations about the compilation result
+   *
+   * @param f
+   * @return
+   */
+  def compileFile(f: File): Either[CompilationOutputResult, Throwable] = {
+
+    // Prepare Arguments
+    val baseArguments = this.buildBaseCompilerArguments()
+    val allArguments = baseArguments ::: List(f.getCanonicalPath)
+
+    // Compile
+    println("Compile Arguments: "+allArguments)
+    val result = new CompilationOutputResult(this.compilerClassDomain)
+    try {
+      this.compiler.process(allArguments.toArray, this.reporter, result)
+      Left(result)
+    } catch {
+      case e: Throwable =>
+        e.printStackTrace()
+        Right(e)
+    }
+
+
+  }
+
+  /*
   def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =
     getIMain.compileSourcesKeepingRun(sources: _*)._1
 
@@ -319,6 +255,6 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
       interpreterOutput.getBuffer().setLength(0)
 
     }
-  }
+  }*/
 
 }

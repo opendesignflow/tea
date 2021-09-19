@@ -36,7 +36,7 @@ import org.odfi.tea.TeaStringUtils;
 import org.odfi.tea.reflect.ReflectUtilities;
 
 /**
- * This class is a proxy for Internationalization.<br/> It is designed to help
+ * This class is a proxy for Internationalization. It is designed to help
  * working easily with Bundles Text fetching
  * 
  * FIXME Multi classloader reload

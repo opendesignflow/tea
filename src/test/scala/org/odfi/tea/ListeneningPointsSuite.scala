@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
 package org.odfi.tea
-
+/*
 import org.scalatest.GivenWhenThen
 import org.scalatest.GivenWhenThen
 import org.odfi.tea.listeners.ListeningSupport
@@ -142,4 +142,4 @@ class ListeningPointsSuite extends AnyFunSuite with GivenWhenThen {
 
   }
 }
-
+*/

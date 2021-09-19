@@ -1,5 +1,5 @@
 package org.odfi.tea.compile
-
+/*
 import java.io.PrintWriter
 
 import scala.reflect.internal.Reporter
@@ -72,4 +72,4 @@ class PrintWriterReplReporter(var settings: Settings , val outImpl: PrintWriter)
     }
 
   }
-}
+}*/

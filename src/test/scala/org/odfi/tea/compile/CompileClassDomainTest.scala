@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
 package org.odfi.tea.compile
-
+/*
 import org.scalatest.GivenWhenThen
 import org.scalatest.BeforeAndAfter
 import org.odfi.tea.file.DirectoryUtilities
@@ -121,3 +121,4 @@ class CompileClassDomainTest  extends AnyFunSuite with GivenWhenThen with Before
   
   
 }
+*/

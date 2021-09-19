@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
 package org.odfi.tea
-
+/*
 import org.odfi.tea.logging.TLogSource
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -29,7 +29,7 @@ trait TestLogging extends TLogSource  {
   def test = {
     logInfo(s"Test")
   }
-  
+
 }
 
 class LoggingTest extends AnyFunSuite with TLogSource {
@@ -43,3 +43,4 @@ class LoggingTest extends AnyFunSuite with TLogSource {
   }
   
 }
+*/

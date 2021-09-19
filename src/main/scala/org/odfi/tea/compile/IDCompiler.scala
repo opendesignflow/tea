@@ -123,8 +123,14 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
       "Cannot compile if no compiler output is defined"
     })
 
+    // transform CP files depending on OS
+    val cp = OSDetector.isWindows match {
+      case true => this.bootclasspath.map(_.getFile.stripPrefix("/"))
+      case false => this.bootclasspath.map(_.getFile)
+    }
+
     this.compilerBaseArguments :::
-      List("-bootclasspath",this.bootclasspath.map(_.getFile.stripPrefix("/")).mkString(File.pathSeparator))  :::
+      List("-bootclasspath", cp.mkString(File.pathSeparator)) :::
       this.compilerPlugins.map(p => s"-P:${p._1}:${p._2}") :::
       List("-d", this.compilerOutput.get.getCanonicalPath)
 
@@ -160,7 +166,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
     val allArguments = baseArguments ::: List(f.getCanonicalPath)
 
     // Compile
-    println("Compile Arguments: "+allArguments)
+    println("Compile Arguments: " + allArguments)
     val result = new CompilationOutputResult(this.compilerClassDomain)
     try {
       this.compiler.process(allArguments.toArray, this.reporter, result)

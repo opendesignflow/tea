@@ -31,76 +31,78 @@ trait ErrorSupport extends TeaPredef {
 
   // Checking
   //-------------
-  
+
   /**
    * Implementors should use immediate check to report non time consuming errors
    * Other than Immediate Errors are kept back
-   * 
+   *
    * Don't forget to call super.checkImmediateErrors in implementation
    */
   def checkImmediateErrors = {
     resetErrorsOfType[TImmediateError]
-    
+
   }
-  
-  def addImmediateError(err:TImmediateError) : TImmediateError = {
+
+  def addImmediateError(err: TImmediateError): TImmediateError = {
     addError(err)
     err
   }
-  
-  def addImmediateError(err:Throwable) : TImmediateError = {
+
+  def addImmediateError(err: Throwable): TImmediateError = {
     val e = new TImmediateError(err)
     addError(e)
-   e
+    e
   }
-  
-  def addImmediateError(err:String) : TImmediateError = {
+
+  def addImmediateError(err: String): TImmediateError = {
     val e = new TImmediateError(err)
     addError(e)
-   e
+    e
   }
-  def addImmediateError(err:String,parent:Throwable) : TImmediateError = {
-    val e = new TImmediateError(err,parent)
+
+  def addImmediateError(err: String, parent: Throwable): TImmediateError = {
+    val e = new TImmediateError(err, parent)
     addError(e)
-   e
+    e
   }
-  
-  
+
+
   // Error Add/Remove
   //-----------
-  
+
   def checkErrors = {
-       resetErrorsOfType[TError]
+    resetErrorsOfType[TError]
   }
-  
-  def addError(err:TImmediateError) : TError = {
+
+  def addError(err: TImmediateError): TError = {
     addError(err)
     err
   }
-  
-  def addError(err:String) : TError = {
+
+  def addError(err: String): TError = {
     val e = new TError(err)
     addError(e)
-   e
+    e
   }
-  def addError(err:String,parent:Throwable) : TError = {
-    val e = new TError(err,parent)
+
+  def addError(err: String, parent: Throwable): TError = {
+    val e = new TError(err, parent)
     addError(e)
-   e
+    e
   }
-  
+
   def addError(e: Throwable) = this.errors.contains(e) match {
-    case true => 
-    case false => 
+    case true =>
+    case false =>
       this.errors.push(e)
   }
-  
+
   def resetErrors = this.errors.clear()
 
-  def resetErrorsOfType[TT <: Throwable](implicit tag : ClassTag[TT]) = {
+  def resetErrorsOfType[TT <: Throwable](implicit tag: ClassTag[TT]) = {
     this.errors = this.errors.filter { err => !tag.runtimeClass.isInstance(err) }
   }
-  
+
   // Errors get
   //---------------
   def hasErrors = this.errors.size match {
@@ -109,44 +111,44 @@ trait ErrorSupport extends TeaPredef {
   }
 
   def hasImmediateErrors = this.errors.find {
-    case e : TImmediateError => true
+    case e: TImmediateError => true
     case other => false
   }.isDefined
-  
+
   def getLastError = this.errors.headOption
-  
-  def getLastErrorOfType[ET <: Throwable](implicit tag : ClassTag[ET]) = {
+
+  def getLastErrorOfType[ET <: Throwable](implicit tag: ClassTag[ET]) = {
     this.errors.collectFirst {
-      case err if (tag.runtimeClass.isInstance(err))=>err.asInstanceOf[ET]
+      case err if (tag.runtimeClass.isInstance(err)) => err.asInstanceOf[ET]
     }
   }
-  
-  def getErrorsOfType[ET <: Throwable](implicit tag : ClassTag[ET]) = {
-    
+
+  def getErrorsOfType[ET <: Throwable](implicit tag: ClassTag[ET]) = {
+
     this.errors.collect {
-      case err if (tag.runtimeClass.isInstance(err))=>err.asInstanceOf[ET]
+      case err if (tag.runtimeClass.isInstance(err)) => err.asInstanceOf[ET]
     }.toList
-    
+
   }
-  
+
   def getImmediateErrors = getErrorsOfType[TImmediateError]
 
   // Comsume etc..
   //------------------
 
   def consumeErrors(cl: Throwable => Unit) = {
-    while(!errors.isEmpty) {
+    while (!errors.isEmpty) {
       cl(errors.pop())
     }
   }
-  
+
   def consumePrintErrorsToStdErr = {
     this.consumeErrors {
-      e => 
+      e =>
         e.printStackTrace(System.err)
     }
   }
-  
+
   /**
    * Run somethign and catch error on target object
    * Error is transmitted
@@ -167,40 +169,40 @@ trait ErrorSupport extends TeaPredef {
    * Catch errors but don't transmit them
    * Closure returns None in that case
    */
-  def keepErrorsOn[RT](target: ErrorSupport,verbose:Boolean=false)(cl: => RT): Option[RT] = {
+  def keepErrorsOn[RT](target: ErrorSupport, verbose: Boolean = false)(cl: => RT): Option[RT] = {
     try {
-     // target.resetErrors
+      // target.resetErrors
       Some(cl)
     } catch {
       case e: Throwable =>
         verbose match {
-          case true => 
-             e.printStackTrace()
-          case false => 
+          case true =>
+            e.printStackTrace()
+          case false =>
         }
-         
+
         target.addError(e)
         None
     }
   }
-  
-  def ignoreErrors[RT](cl: => RT) : Option[RT]  = {
+
+  def ignoreErrors[RT](cl: => RT): Option[RT] = {
     try {
-     // target.resetErrors
+      // target.resetErrors
       Some(cl)
     } catch {
       case e: Throwable =>
         None
     }
   }
-  
+
   // Pretty Printing
   //------------------
-  def printErrorList(out:PrintStream) = {
-      this.errors.foreach {
-          err => 
-              out.println("Error "+err.getClass.getCanonicalName+": "+err.getLocalizedMessage)
-      }
+  def printErrorList(out: PrintStream) = {
+    this.errors.foreach {
+      err =>
+        out.println("Error " + err.getClass.getCanonicalName + ": " + err.getLocalizedMessage)
+    }
   }
 
 }

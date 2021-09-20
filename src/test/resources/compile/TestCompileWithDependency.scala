@@ -22,7 +22,7 @@ package org.odfi.tea.compile
 
 import org.bridj.Pointer
 
-class TestCompileWithDependency extends  {
+class TestCompileWithDependency   {
   
   var longPointer = org.bridj.Pointer.allocateCLong()
   

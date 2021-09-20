@@ -31,7 +31,7 @@ trait ProgressSupport extends ListeningSupport {
   }
   def onProgressInit(cl: String => Unit) = {
     this.onWith("progress.init") {
-      m: String => cl(m)
+      (m: String) => cl(m)
     }
   }
   def progressUpdate(p: Double) = {
@@ -42,7 +42,7 @@ trait ProgressSupport extends ListeningSupport {
 
     //println(s"MG Registering Progress update...")
     this.onWith("progress.update") {
-      d: Double =>
+      (d: Double) =>
         // println(s"MG received updated")
         cl(d)
     }

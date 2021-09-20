@@ -21,7 +21,7 @@ object TryIDCompilerS3 extends App {
   /*val drv = new Driver
   val comp = new dotc.Compiler*/
 
-  val compiler = new IDCompiler
+  val compiler =  IDCompiler()
   compiler.setCompilerOutput(out)
 
   compiler.compileFile(src)
@@ -29,12 +29,5 @@ object TryIDCompilerS3 extends App {
   println("------- Done ------------")
 
 
-
-}
-class TestCB extends CompilerCallback {
-
-  override def onClassGenerated(src: SourceFile,cl: AbstractFile,name:String)  {
-
-  }
 
 }

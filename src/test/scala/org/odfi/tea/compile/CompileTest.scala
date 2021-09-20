@@ -25,45 +25,50 @@ import org.odfi.tea.file.DirectoryUtilities
 import org.scalatest.BeforeAndAfter
 import org.scalatest.GivenWhenThen
 import org.scalatest.funsuite.AnyFunSuite
-/*
+
+import java.lang.reflect.InvocationTargetException
+import java.net.URLClassLoader
+
 class CompileTest extends AnyFunSuite with BeforeAndAfter with GivenWhenThen {
 
   val sourceFolder = new File("src/test/resources/compile")
   val outputFolder = new File("build/tco")
   val startupCL = getClass.getClassLoader
-  
+
   before {
     outputFolder.mkdirs()
     DirectoryUtilities.deleteDirectoryContent(outputFolder)
     Thread.currentThread().setContextClassLoader(startupCL)
   }
 
-  test("Startup and Classloader") {
-    
-    println("DefaultCL: "+Thread.currentThread().getContextClassLoader)
+  def createCompilerWithOutput = {
     var idCompiler = new IDCompiler
-
     //-- Set Source and Output
     idCompiler.setCompilerOutput(outputFolder)
+    idCompiler
+  }
+
+  test("Startup and Classloader") {
+
+    println("DefaultCL: " + Thread.currentThread().getContextClassLoader)
+    var idCompiler = createCompilerWithOutput
 
     Thread.sleep(2000)
-    
-    println("END CL: "+Thread.currentThread().getContextClassLoader)
+
+    println("END CL: " + Thread.currentThread().getContextClassLoader)
   }
-  
+
   test("Compilation Source and Output check") {
 
     //-- Create Compiler
-    var idCompiler = new IDCompiler
+    var idCompiler = createCompilerWithOutput
 
-    //-- Set Source and Output
-    idCompiler.setCompilerOutput(outputFolder)
 
     //-- Compile Files, check output
     var sourceFile = new File(sourceFolder, "TestCompile.scala").getAbsoluteFile
 
     var res = idCompiler.compileFile(sourceFile)
-    assert(res.isLeft,"Compilation was not successfull")
+    assert(res.isLeft, "Compilation was not successfull")
     /*
     res match {
       case Some(error) =>
@@ -73,7 +78,7 @@ class CompileTest extends AnyFunSuite with BeforeAndAfter with GivenWhenThen {
     }*/
 
     //-- No Errors
-   // assertResult(None, "No Compilation Errors")(res)
+    // assertResult(None, "No Compilation Errors")(res)
     /* println(s"$res")
     println(s"Settings: "+idCompiler.settings2.outputDirs.outputs)
     println(s"Settings: "+idCompiler.settings2.outputDirs.getSingleOutput)*/
@@ -84,12 +89,11 @@ class CompileTest extends AnyFunSuite with BeforeAndAfter with GivenWhenThen {
     assert(classFile.exists(), "Class File must be present in output")
 
   }
-/*
+
   test("Class Loading Works with Classloader for output folder and parent current Thread CL (to get URL classpath set at startup)") {
 
     //-- Compile File
-    var idCompiler = new IDCompiler
-    idCompiler.addSourceOutputFolders(sourceFolder -> outputFolder)
+    var idCompiler = createCompilerWithOutput
     var sourceFile = new File(sourceFolder, "TestCompile.scala").getAbsoluteFile
 
     //-- Try to Load class
@@ -107,8 +111,7 @@ class CompileTest extends AnyFunSuite with BeforeAndAfter with GivenWhenThen {
   test("Class Cast Works if Classloading works") {
 
     //-- Compile File
-    var idCompiler = new IDCompiler
-    idCompiler.addSourceOutputFolders(sourceFolder -> outputFolder)
+    var idCompiler = createCompilerWithOutput
     var sourceFile = new File(sourceFolder, "TestCompile.scala").getAbsoluteFile
 
     //-- Try to Load class
@@ -129,20 +132,19 @@ class CompileTest extends AnyFunSuite with BeforeAndAfter with GivenWhenThen {
   test("Compile a subclass of a class in extra source Folder") {
 
     //-- Compile File
-    var idCompiler = new IDCompiler
-    idCompiler.addSourceOutputFolders(sourceFolder -> outputFolder)
+    var idCompiler = createCompilerWithOutput
     var sourceFiles = List(new File(sourceFolder, "TestCompileSubclass.scala").getAbsoluteFile, new File(sourceFolder, "TestCompile.scala").getAbsoluteFile)
 
-    //-- Try to Load class 
+    //-- Try to Load class
     var res = idCompiler.compileFiles(sourceFiles)
     res match {
-      case Some(error) =>
-        println(s"Error ${error.message}")
-      case None =>
+      case Right(error) =>
+        println(s"Error ${error.getLocalizedMessage}")
+      case other =>
     }
 
     //-- Check
-    assertResult(None, "No Compilation Errors")(res)
+    assert(res.isLeft, "No Compilation Errors")
 
     //-- Class Name 
     val parentClassName = "org.odfi.tea.compile.TestCompile"
@@ -162,92 +164,92 @@ class CompileTest extends AnyFunSuite with BeforeAndAfter with GivenWhenThen {
   test("Class Compile with dependency, Compilation Errors if Dep Jar not set") {
 
     //-- Compile File
-    var idCompiler = new IDCompiler
-    idCompiler.addSourceOutputFolders(sourceFolder -> outputFolder)
-    var sourceFiles = List(new File(sourceFolder, "TestCompileWithDependency.scala").getAbsoluteFile)
+    var idCompiler = createCompilerWithOutput
+    var sourceFiles = new File(sourceFolder, "TestCompileWithDependency.scala").getAbsoluteFile
 
     //-- Try to Load class 
-    var res = idCompiler.compileFiles(sourceFiles)
+    var res = idCompiler.compileFile(sourceFiles)
     res match {
-      case Some(error) =>
-        println(s"Error ${error.message}")
-      case None =>
+      case Right(error) =>
+        println(s"Error ${error.getLocalizedMessage}")
+        throw error
+      case Left(result) =>
+        //-- Check
+        assert(result.hasErrors, "Expected Compilation Errors")
     }
 
-    //-- Check
-    assertResult(true, "Expected Compilation Errors")(res.isDefined)
 
   }
 
   test("Class Compile with dependency, success if Dep Jar is set") {
 
     //-- Compile File
-    var idCompiler = new IDCompiler
-    idCompiler.addSourceOutputFolders(sourceFolder -> outputFolder)
-    var sourceFiles = List(new File(sourceFolder, "TestCompileWithDependency.scala").getAbsoluteFile)
+    var idCompiler = createCompilerWithOutput
+    var sourceFiles = new File(sourceFolder, "TestCompileWithDependency.scala").getAbsoluteFile
 
     //-- Add jar to ClassPath
     idCompiler.addClasspathURL(new File(sourceFolder, "bridj-0.7.0.jar").toURI().toURL())
 
     //-- Try to Load class 
-    var res = idCompiler.compileFiles(sourceFiles)
+    var res = idCompiler.compileFile(sourceFiles)
     res match {
-      case Some(error) =>
-        println(s"Error ${error.message}")
-      case None =>
+      case Right(error) =>
+        println(s"Error ${error.getLocalizedMessage}")
+      case other =>
     }
 
     //-- Check
-    assertResult(None, "No Compilation Errors")(res)
+    assert(res.isLeft, "No Compilation Errors")
 
   }
 
   test("Class Compile with dependency, instance requires Context Class Loader update") {
 
     //-- Compile File
-    var idCompiler = new IDCompiler
-    idCompiler.addSourceOutputFolders(sourceFolder -> outputFolder)
-    var sourceFiles = List(new File(sourceFolder, "TestCompileWithDependency.scala").getAbsoluteFile)
+    var idCompiler = createCompilerWithOutput
+    var sourceFile = new File(sourceFolder, "TestCompileWithDependency.scala").getAbsoluteFile
 
     //-- Add jar to ClassPath
     var dependencyJar = new File(sourceFolder, "bridj-0.7.0.jar").toURI().toURL()
     idCompiler.addClasspathURL(dependencyJar)
 
     //-- Try to Load class 
-    var res = idCompiler.compileFiles(sourceFiles)
+    var res = idCompiler.compileFile(sourceFile)
     res match {
-      case Some(error) =>
-        println(s"Error ${error.message}")
-      case None =>
+      case Right(error) =>
+        println(s"Error ${error.getLocalizedMessage}")
+        throw error
+      case Left(res) =>
+
+        //-- Check no compilation errors
+        assert(!res.hasErrors, "Compilation Errors")
+
+        //-- Add Output to current Thread
+        var initCL = Thread.currentThread().getContextClassLoader
+        Thread.currentThread().setContextClassLoader(URLClassLoader.newInstance(Array(outputFolder.toURI().toURL()), Thread.currentThread().getContextClassLoader))
+
+        //var superCl = Thread.currentThread().getContextClassLoader.loadClass(parentClassName)
+
+        //-- Load Class
+        val className = "org.odfi.tea.compile.TestCompileWithDependency"
+        var cl = Thread.currentThread().getContextClassLoader.loadClass(className)
+
+        //-- Instantiate without the dependency, should fail
+        Given("The Dependency Jar is missing from the Classloader")
+        Then("Instance should fail with No Class Def Found")
+        intercept[InvocationTargetException] {
+          var instance = cl.getDeclaredConstructor().newInstance()
+        }
+
+        //-- Add Dependency
+        When("The JAR is added to the classloader, it MUST work")
+        Thread.currentThread().setContextClassLoader(URLClassLoader.newInstance(Array(outputFolder.toURI().toURL(), dependencyJar), initCL))
+        cl = Thread.currentThread().getContextClassLoader.loadClass(className)
+        var instance = cl.getDeclaredConstructor().newInstance()
     }
 
-    //-- Check
-    assertResult(None, "No Compilation Errors")(res)
 
-    //-- Add Output to current Thread
-    var initCL = Thread.currentThread().getContextClassLoader
-    Thread.currentThread().setContextClassLoader(URLClassLoader.newInstance(Array(outputFolder.toURI().toURL()), Thread.currentThread().getContextClassLoader))
 
-    //var superCl = Thread.currentThread().getContextClassLoader.loadClass(parentClassName)
-
-    //-- Load Class
-    val className = "org.odfi.tea.compile.TestCompileWithDependency"
-    var cl = Thread.currentThread().getContextClassLoader.loadClass(className)
-
-    //-- Instantiate without the dependency, should fail
-    Given("The Dependency Jar is missing from the Classloader")
-    Then("Instance should fail with No Class Def Found")
-    intercept[InvocationTargetException] {
-      var instance = cl.getDeclaredConstructor().newInstance()
-    }
-
-    //-- Add Dependency
-    When("The JAR is added to the classloader, it MUST work")
-    Thread.currentThread().setContextClassLoader(URLClassLoader.newInstance(Array(outputFolder.toURI().toURL(), dependencyJar), initCL))
-    cl = Thread.currentThread().getContextClassLoader.loadClass(className)
-    var instance = cl.getDeclaredConstructor().newInstance()
-    
   }
-*/
+
 }
-*/

@@ -22,11 +22,12 @@ package org.odfi.tea.errors
 
 import java.io.File
 
-class TError( message:String,cause : Throwable) extends Throwable(message,cause) {
+class TError(message: String, cause: Throwable) extends Throwable(message, cause) {
 
-  def this(message:String) = this(message,null)
-  def this(e:Throwable) = this(e.getLocalizedMessage,e)
-  
+  def this(message: String) = this(message, null)
+
+  def this(e: Throwable) = this(e.getLocalizedMessage, e)
+
   // Location
   var file: Option[String] = None
   var line: Option[Int] = None
@@ -35,7 +36,8 @@ class TError( message:String,cause : Throwable) extends Throwable(message,cause)
 }
 
 
-class TImmediateError(message:String,cause : Throwable) extends TError(message,cause) {
-   def this(message:String) = this(message,null)
-  def this(e:Throwable) = this(e.getLocalizedMessage,e)
+class TImmediateError(message: String, cause: Throwable) extends TError(message, cause) {
+  def this(message: String) = this(message, null)
+
+  def this(e: Throwable) = this(e.getLocalizedMessage, e)
 }

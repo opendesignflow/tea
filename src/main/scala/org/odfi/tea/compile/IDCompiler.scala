@@ -36,8 +36,8 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
 
   // Compiler Base
   //---------------
-  val compiler = new Driver
-  val reporter = new CompilerReporter
+  val compiler =  Driver()
+  val reporter =  CompilerReporter()
 
   var compilerBaseArguments = List("-usejavacp")
   var compilerPlugins: List[(String, String)] = List()
@@ -153,23 +153,20 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
 
   }
 
-  /**
-   * Compile a file and return informations about the compilation result
-   *
-   * @param f
-   * @return
-   */
-  def compileFile(f: File): Either[CompilationOutputResult, Throwable] = {
+  def compileFiles(f:Seq[File]) : Either[CompilationOutputResult, Throwable] = {
 
     // Prepare Arguments
     val baseArguments = this.buildBaseCompilerArguments()
-    val allArguments = baseArguments ::: List(f.getCanonicalPath)
+    val allArguments = baseArguments ::: f.map(_.getCanonicalPath).toList
 
     // Compile
     println("Compile Arguments: " + allArguments)
+    val reporter = CompilerReporter()
     val result = new CompilationOutputResult(this.compilerClassDomain)
     try {
-      this.compiler.process(allArguments.toArray, this.reporter, result)
+      this.compiler.process(allArguments.toArray, reporter, result)
+      result.errors = reporter.errors
+
       Left(result)
     } catch {
       case e: Throwable =>
@@ -177,8 +174,15 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
         Right(e)
     }
 
-
   }
+
+  /**
+   * Compile a file and return informations about the compilation result
+   *
+   * @param f
+   * @return
+   */
+  def compileFile(f: File): Either[CompilationOutputResult, Throwable] = compileFiles(Seq(f))
 
   /*
   def compileSourcesSeq(sources: Seq[SourceFile]): Boolean =

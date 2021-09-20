@@ -5,12 +5,12 @@ import dotty.tools.dotc.interfaces.{AbstractFile, CompilerCallback, SourceFile}
 import java.io.IOException
 import scala.reflect.ClassTag
 
-class CompilationOutputResult(val outputClassDomain: ClassDomain) extends CompilerCallback {
+class CompilationOutputResult(val outputClassDomain: ClassDomain) extends CompilerCallback  with CompileDiagnostics {
 
   var generatedTypes: List[String] = List()
 
 
-  override def onClassGenerated(src: SourceFile, cl: AbstractFile, name: String) {
+  override def onClassGenerated(src: SourceFile, cl: AbstractFile, name: String) = {
     println("Generated Class: " + name)
     this.generatedTypes = this.generatedTypes :+ name
 

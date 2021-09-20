@@ -1,12 +1,16 @@
 plugins {
 
+    // Scala
+    id("scala")
+
     id("java-library")
 
     // Publish
     id("maven-publish")
 
-    // Scala
-    id("scala")
+    id("com.github.maiflai.scalatest") version "0.31"
+
+
 
 }
 
@@ -33,9 +37,11 @@ version = lib_version
 sourceSets {
     main {
         scala {
-            // Generated from ooxoo
-            //srcDir("src/main/java")
-            //srcDir new java.io.File(getBuildDir(), "generated-sources/scala")
+            srcDir("src/main/java")
+        }
+
+        java {
+            this.setSrcDirs(emptyList<File>())
         }
     }
 
@@ -48,7 +54,7 @@ java {
         languageVersion.set(JavaLanguageVersion.of(11))
         vendor.set(JvmVendorSpec.ADOPTOPENJDK)
     }
-   // withJavadocJar()
+    // withJavadocJar()
     withSourcesJar()
 }
 
@@ -58,23 +64,16 @@ tasks.javadoc {
     }
 }
 
-// Scala compilation options
-tasks.withType<ScalaCompile>().configureEach {
-    scalaCompileOptions.additionalParameters = listOf("-Ytasty-reader")
-}
-
-tasks.compileScala {
-    this.scalaCompileOptions.additionalParameters = listOf("-Ytasty-reader")
-}
-
 dependencies {
 
     //api("org.scala-lang:scala3-reflect:$scalaVersion")
     api("org.scala-lang:scala3-compiler_$scalaMajorVersion:$scalaVersion")
     api("org.scala-lang:scala3-library_$scalaMajorVersion:$scalaVersion")
 
-    testImplementation ("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.9")
-    testImplementation ("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.9")
+
+    testImplementation("org.scalatest:scalatest-funsuite_$scalaMajorVersion:3.2.9")
+    testImplementation("org.scalatest:scalatest-shouldmatchers_$scalaMajorVersion:3.2.9")
+    testImplementation ("com.vladsch.flexmark:flexmark-all:0.35.10")
 }
 
 repositories {

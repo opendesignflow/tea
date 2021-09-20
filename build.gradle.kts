@@ -64,6 +64,12 @@ tasks.javadoc {
     }
 }
 
+tasks.withType<ScalaCompile>().configureEach {
+    scalaCompileOptions.additionalParameters = listOf("-explain")
+}
+
+
+
 dependencies {
 
     //api("org.scala-lang:scala3-reflect:$scalaVersion")

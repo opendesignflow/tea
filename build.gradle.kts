@@ -16,7 +16,7 @@ var scalaMajorVersion by extra("3")
 var scalaMinorVersion by extra("0.2")
 val scalaVersion = "$scalaMajorVersion.$scalaMinorVersion"
 
-var lib_version by extra("4.0.0-SNAPSHOT")
+var lib_version by extra("4.0.1-SNAPSHOT")
 var branch by extra { System.getenv("BRANCH_NAME") }
 
 if (System.getenv().getOrDefault("BRANCH_NAME", "dev").contains("release")) {

@@ -17,4 +17,4 @@ pluginManagement {
 
 }
 include(":core")
-//include(":compiler")
+include(":compiler")

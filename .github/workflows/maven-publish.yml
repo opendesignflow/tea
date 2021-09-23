@@ -19,14 +19,17 @@ jobs:
           java-version: 11
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
-
-      - name: Build with Gradle
-        run: chmod +x gradlew && ./gradlew build test
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v11
+        with:
+          java-version: 'adopt@1.11'
+      - name: Build with SBT
+        run: sbt compile
         env:
           BRANCH_NAME: ${{ github.ref }}
 
       - name: Publish to GitHub Packages Apache Maven
-        run: chmod +x gradlew && ./gradlew publish
+        run: sbt publish
         env:
           BRANCH_NAME: ${{ github.ref }}
           USERNAME: ${{ github.username }}

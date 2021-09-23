@@ -1,30 +1,8 @@
-/*-
- * #%L
- * Tea Scala Utils Library
- * %%
- * Copyright (C) 2006 - 2017 Open Design Flow
- * %%
- * This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * #L%
- */
 package org.odfi.tea.compile
 
-import java.net.URL
-import java.net.URLClassLoader
+import java.net.{URL, URLClassLoader}
 
 trait ClassDomainSupport {
-
 
 
   /**
@@ -34,11 +12,11 @@ trait ClassDomainSupport {
   def getClassLoaderHierary(testCl: ClassLoader) = {
     require(testCl != null, "Cannot create classloader hierarchy of null classloader")
 
-    //-- Init 
+    //-- Init
     var currentCL = testCl
     var res = List(currentCL)
 
-    //-- Go through parents 
+    //-- Go through parents
     while (currentCL.getParent != null) {
       res = res :+ currentCL
       currentCL = currentCL.getParent
@@ -55,21 +33,21 @@ trait ClassDomainSupport {
 
     //-- Gather all URLS
     var allHierarchyURLS = urlClassloaderHierarchy.map { cl => cl.getURLs }.flatten
-    
+
     allHierarchyURLS
 
   }
 
   def isClassLoaderChildOf(child: ClassLoader, parent: ClassLoader): Boolean = {
 
-    //--Look in testCL hierarchy, if the parent is present 
+    //--Look in testCL hierarchy, if the parent is present
     getClassLoaderHierary(child).contains(parent)
 
   }
 
   def isClassLoaderParentOf(parent: ClassLoader, child: ClassLoader): Boolean = {
 
-    //--Look in testCL hierarchy, if the parent is present 
+    //--Look in testCL hierarchy, if the parent is present
     getClassLoaderHierary(child).contains(parent)
 
   }
@@ -100,7 +78,7 @@ trait ClassDomainSupport {
       //throw new RuntimeException("getting ClassLoader for class is in an unknown case ")
     }
     /*
-    
+
     //-- Add Output to CurrentClassLoader, or Update ClassLoader
     Thread.currentThread().getContextClassLoader match {
       case cl: ClassDomain =>
@@ -108,7 +86,7 @@ trait ClassDomainSupport {
         /*var eout = new File("eout")
       eout.mkdirs()
       compiler.settings2.outputDirs.setSingleOutput(eout.getAbsolutePath)
-      
+
       println(s"Adding output to cl: "+this.compiler.settings2.outputDirs.getSingleOutput.get.file)*/
         // cl.addURL(new File(this.compiler.settings2.outdir.value).getAbsoluteFile.toURI().toURL())
 
@@ -124,7 +102,7 @@ trait ClassDomainSupport {
       //cl.addURL(this.compiler.settings2.outputDirs.getSingleOutput.get.file.getAbsoluteFile.toURI().toURL())
 
     }
-    
+
     null*/
   }
 
@@ -217,6 +195,7 @@ trait ClassDomainSupport {
     this.withClassLoader(classLoader)(run)
 
   }
+
   def withURLInClassloader[RT](arr: URL*)(run: => RT): RT = withURLInClassloader(arr.toArray)(run)
 
 }

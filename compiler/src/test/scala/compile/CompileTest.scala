@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package compile
 
+import org.odfi.tea.compile.IDCompiler
+
 import java.io.File
 import org.odfi.tea.file.DirectoryUtilities
 import org.scalatest.BeforeAndAfter

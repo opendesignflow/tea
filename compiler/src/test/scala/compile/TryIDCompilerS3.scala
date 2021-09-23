@@ -1,13 +1,7 @@
 package compile
 
-import dotty.tools.dotc
-import dotty.tools.dotc.Driver
-import dotty.tools.dotc.interfaces.{AbstractFile, CompilerCallback, SourceFile}
-
 import java.io.File
-
-
-
+import org.odfi.tea.compile.IDCompiler
 object TryIDCompilerS3 extends App {
 
   println("Hello")
@@ -21,7 +15,7 @@ object TryIDCompilerS3 extends App {
   /*val drv = new Driver
   val comp = new dotc.Compiler*/
 
-  val compiler =  IDCompiler()
+  val compiler =  new IDCompiler
   compiler.setCompilerOutput(out)
 
   compiler.compileFile(src)

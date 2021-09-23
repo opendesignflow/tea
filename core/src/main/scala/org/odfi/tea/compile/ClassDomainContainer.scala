@@ -1,23 +1,3 @@
-/*-
- * #%L
- * Tea Scala Utils Library
- * %%
- * Copyright (C) 2006 - 2017 Open Design Flow
- * %%
- * This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * #L%
- */
 package org.odfi.tea.compile
 
 import org.odfi.tea.listeners.ListeningSupport
@@ -58,7 +38,7 @@ trait ClassDomainContainer extends ListeningSupport {
         this.childrenClassDomains = this.childrenClassDomains :+ c
     }
   }
-  
+
   /**
    * Returns the Class domain of parent if any
    */
@@ -68,9 +48,10 @@ trait ClassDomainContainer extends ListeningSupport {
         parentCD.classdomain
       case None => None
     }
-    
-    
+
+
   }
+
   /**
    * Get the parent classloader of the class domain
    * This can be used to compare the result of direct call to parent container's class domain, and the actual local one
@@ -81,20 +62,20 @@ trait ClassDomainContainer extends ListeningSupport {
         Some(cd.getParent)
       case None => None
     }
-    
-    
+
+
   }
 
-  def isChild(cd:ClassDomainContainer) : Boolean = {
-    this.childrenClassDomains.contains(cd) || childrenClassDomains.find{cc => cc.isChild(cd)}.isDefined
+  def isChild(cd: ClassDomainContainer): Boolean = {
+    this.childrenClassDomains.contains(cd) || childrenClassDomains.find { cc => cc.isChild(cd) }.isDefined
   }
-  
+
   // Local Utils
   //-------------------
 
   def taintClassDomain = {
     this.classdomain match {
-      case Some(cd) => 
+      case Some(cd) =>
         this.classdomain = None
         cd.tainted = true
         cd.close
@@ -104,18 +85,19 @@ trait ClassDomainContainer extends ListeningSupport {
 
   /**
    * Create new ClassDomain
+   *
    * @param rebuild If false, won't be rebuild. This is convienient for classdomain initialisation in a constructor without triggering build actions like dependencies setup
    */
-  def createNewClassDomain(p: ClassLoader,rebuild:Boolean=true) = {
+  def createNewClassDomain(p: ClassLoader, rebuild: Boolean = true) = {
     // Taint Actual
     taintClassDomain
 
     // Create new
     this.classdomain = Some(new ClassDomain(p))
-    if(rebuild) {
+    if (rebuild) {
       this.@->("rebuild")
     }
-    
+
   }
 
   def recreateClassDomain = {

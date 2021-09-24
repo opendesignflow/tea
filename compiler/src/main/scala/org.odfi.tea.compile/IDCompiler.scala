@@ -160,7 +160,7 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
     val allArguments = baseArguments ::: f.map(_.getCanonicalPath).toList
 
     // Compile
-    println("Compile Arguments: " + allArguments)
+    //println("Compile Arguments: " + allArguments)
     val reporter = CompilerReporter()
     val result = new CompilationOutputResult(this.compilerClassDomain)
     try {

@@ -1,8 +1,10 @@
 
-
+isSnapshot := {!sys.env.getOrElse("BRANCH_NAME","dev").endsWith("release")}
 ThisBuild / organization := "org.odfi"
-ThisBuild / version := "4.1.2-SNAPSHOT"
+ThisBuild / version := s"""4.1.1${if (isSnapshot.value) "-SNAPSHOT" else "" }"""
 publish / skip := true
+
+
 
 /*
 lazy val root = (project in file("."))
@@ -17,6 +19,7 @@ val pPWD = sys.env.get("PUBLISH_PASSWORD")
 lazy val commonSettings = Seq(
     credentials += Credentials("Sonatype Nexus Repository Manager", "www.opendesignflow.org",pUser.getOrElse("-"),pPWD.getOrElse("-")),
     publishTo := {
+        streams.value.log.info(s"Version: ${(ThisBuild/version).value}")
         if (pUser.isDefined && pPWD.isDefined) {
             val nexus = "https://www.opendesignflow.org/maven/repository/"
             if (isSnapshot.value)

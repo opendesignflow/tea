@@ -1,7 +1,7 @@
 
 
 ThisBuild / organization := "org.odfi"
-ThisBuild / version := "4.1.0-SNAPSHOT"
+ThisBuild / version := "4.1.2-SNAPSHOT"
 publish / skip := true
 
 /*

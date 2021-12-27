@@ -1,7 +1,7 @@
 
 isSnapshot := {!sys.env.getOrElse("BRANCH_NAME","dev").endsWith("release")}
 ThisBuild / organization := "org.odfi"
-ThisBuild / version := s"""4.1.2${if (isSnapshot.value) "-SNAPSHOT" else "" }"""
+ThisBuild / version := s"""5.0.0${if (isSnapshot.value) "-SNAPSHOT" else "" }"""
 publish / skip := true
 
 

@@ -24,12 +24,12 @@ jobs:
         with:
           java-version: 'adopt@1.11'
       - name: Build with SBT
-        run: sbt compile
+        run: sbt +compile
         env:
           BRANCH_NAME: ${{ github.ref }}
 
       - name: Publish to GitHub Packages Apache Maven
-        run: sbt publish
+        run: sbt +publish
         env:
           BRANCH_NAME: ${{ github.ref }}
           USERNAME: ${{ github.username }}

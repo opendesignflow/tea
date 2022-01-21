@@ -17,11 +17,11 @@ val pUser = sys.env.get("PUBLISH_USERNAME")
 val pPWD = sys.env.get("PUBLISH_PASSWORD")
 
 lazy val commonSettings = Seq(
-    credentials += Credentials("Sonatype Nexus Repository Manager", "www.opendesignflow.org",pUser.getOrElse("-"),pPWD.getOrElse("-")),
+    credentials += Credentials("Sonatype Nexus Repository Manager", "repo.opendesignflow.org",pUser.getOrElse("-"),pPWD.getOrElse("-")),
     publishTo := {
         streams.value.log.info(s"Version: ${(ThisBuild/version).value}")
         if (pUser.isDefined && pPWD.isDefined) {
-            val nexus = "https://www.opendesignflow.org/maven/repository/"
+            val nexus = "https://repo.opendesignflow.org/maven/repository/"
             if (isSnapshot.value)
                 Some("snapshots" at nexus + "snapshots/")
             else

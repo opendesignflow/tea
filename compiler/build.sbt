@@ -1,5 +1,4 @@
 name := "tea-compiler"
-scalaVersion := "3.2.0"
 crossScalaVersions := Nil
 
 libraryDependencies += "org.scala-lang" % "scala3-compiler_3" % scalaVersion.value

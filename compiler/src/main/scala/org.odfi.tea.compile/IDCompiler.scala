@@ -93,14 +93,14 @@ class IDCompiler extends ClassDomainSupport with ThreadLanguage {
   }
 
   //--- Scala Compiler and library go to boot classpath
-  try {
+  /*try {
     val compilerPath = java.lang.Class.forName("dotty.tools.dotc.Driver").getProtectionDomain.getCodeSource.getLocation
     val libPath = java.lang.Class.forName("scala.Some").getProtectionDomain.getCodeSource.getLocation
     addClasspathURL(compilerPath, libPath)
   } catch {
     case e: Throwable =>
       e.printStackTrace()
-  }
+  }*/
 
   /**
    * Update Settings values

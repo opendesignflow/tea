@@ -1,7 +1,8 @@
 
 
 name := "tea"
-crossScalaVersions ++= Seq("2.13.10")
+crossScalaVersions := Nil
+//crossScalaVersions ++= Seq("2.13.10")
 
 
 
